@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:zapier.com)",
+      "WebSearch",
+      "WebFetch(domain:www.pulumi.com)",
+      "WebFetch(domain:www.gend.co)",
+      "WebFetch(domain:resources.anthropic.com)",
+      "Bash(python3:*)",
+      "WebFetch(domain:www.anthropic.com)"
+    ]
+  }
+}
