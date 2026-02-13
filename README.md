@@ -38,10 +38,6 @@ cd get-skilled
 claude
 ```
 
-Then in Claude Code:
-
-> create a skill for deploying to AWS
-
 ## Adding New Skills
 
 Use the `create-skill` skill itself to generate new skills, or manually add a directory under `skills/` following the conventions documented in `skills/create-skill/SKILL.md`.
