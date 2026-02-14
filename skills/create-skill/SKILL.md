@@ -123,7 +123,23 @@ Move detailed docs, API specs, and examples to `references/`. Link them from SKI
 
 This preserves context budget. Claude loads references only when needed.
 
-### Step 5: Configure Invocation (if needed)
+### Step 5: Consider Hooks
+
+Evaluate whether the skill should recommend or include hook configurations. Hooks are shell commands that run automatically at specific lifecycle points — they provide deterministic guarantees that LLM instructions cannot.
+
+**Add hooks when the skill needs:**
+- **Automatic formatting** after file edits (e.g., Prettier via `PostToolUse`)
+- **File protection** to block edits to sensitive files (e.g., `.env` via `PreToolUse`)
+- **Notifications** when Claude needs user input (via `Notification`)
+- **Context re-injection** after compaction (via `SessionStart` with `compact` matcher)
+- **Completion verification** to ensure all tasks are done before stopping (via `Stop` with agent hooks)
+- **Command validation** to block dangerous operations (via `PreToolUse` on `Bash`)
+
+**Do NOT use hooks when** the decision requires LLM judgment, context varies per invocation, or the action is a one-time step within the skill's workflow.
+
+If the skill includes hooks, provide the JSON configuration the user should add to their settings file, and include platform-specific commands where needed (macOS/Linux/Windows). See [references/hooks-best-practices.md](references/hooks-best-practices.md) for the full hooks guide, configuration format, and common patterns.
+
+### Step 6: Configure Invocation (if needed)
 
 | Setting | User invokes | Claude invokes | Description in context |
 |---------|-------------|---------------|----------------------|
@@ -135,7 +151,7 @@ This preserves context budget. Claude loads references only when needed.
 - **`user-invocable: false`**: For background knowledge that isn't a command — e.g., `legacy-system-context`. Hidden from `/` menu.
 - **`context: fork`**: Runs in isolated subagent. No conversation history. Only for skills with explicit task instructions, not guidelines.
 
-### Step 6: Validate
+### Step 7: Validate
 
 Run through the checklist at [references/checklist.md](references/checklist.md) before considering the skill complete.
 
@@ -180,3 +196,4 @@ After creating the skill, guide the user through testing:
 ## Additional Resources
 - For the 5 proven skill patterns with details, see [references/patterns.md](references/patterns.md)
 - For the full validation checklist, see [references/checklist.md](references/checklist.md)
+- For hooks best practices (when and how to include hooks in skills), see [references/hooks-best-practices.md](references/hooks-best-practices.md)

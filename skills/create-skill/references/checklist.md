@@ -45,6 +45,14 @@ Run through this checklist before considering a skill complete.
 - [ ] Each reference file under 10,000 words
 - [ ] Detailed docs moved to `references/`, not inlined
 
+### Hooks
+- [ ] Evaluated whether any steps need deterministic enforcement via hooks
+- [ ] If hooks included: JSON configuration provided for the correct settings file
+- [ ] If hooks included: platform-specific commands provided where needed (macOS/Linux/Windows)
+- [ ] If hooks included: hook scripts are marked executable (`chmod +x`)
+- [ ] If hooks included: `Stop` hooks guard against infinite loops (check `stop_hook_active`)
+- [ ] If hooks included: hooks tested manually with sample JSON piped to stdin
+
 ### Invocation
 - [ ] Invocation mode set correctly (default / `disable-model-invocation` / `user-invocable: false`)
 - [ ] `context: fork` only used for skills with explicit task instructions
