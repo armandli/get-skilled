@@ -10,6 +10,8 @@ You are creating (or modifying) a structured development plan. A plan is a markd
 
 Read the full plan format specification at [references/plan-format.md](references/plan-format.md) before writing any plan content.
 
+The `plan-planter` subagent handles plan validation when available (Step 5). It subsumes the scrutiny checklist and adds dependency optimization and flaw analysis.
+
 ## Workflow
 
 Follow these steps in order. Do not skip steps.
@@ -66,9 +68,11 @@ Ask the user to confirm the dependency structure is correct.
 
 ### Step 5: Scrutiny Review
 
-Before writing the file, run through every item in the scrutiny checklist at [references/scrutiny-checklist.md](references/scrutiny-checklist.md).
+**If the `plan-planter` subagent is available**, delegate validation to it. Pass the plan content (step blocks, dependencies, and goal) to the subagent. It runs a 5-phase validation: structural integrity, dependency optimization (transitive reduction for maximum parallelism), detail sufficiency, plan flaw analysis, and a summary report. It will interact with the user directly to resolve any issues found. Wait for the subagent to complete before proceeding to Step 6.
 
-This step is mandatory. For every issue found:
+**Fallback (if the subagent is unavailable):** Run through every item in the scrutiny checklist at [references/scrutiny-checklist.md](references/scrutiny-checklist.md) manually.
+
+For every issue found (whether via subagent or manual review):
 - State the problem clearly
 - Propose a specific fix
 - Apply the fix after user approval
