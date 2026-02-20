@@ -9,7 +9,8 @@
       "Bash(python3:*)",
       "WebFetch(domain:www.anthropic.com)",
       "Bash(.claude/statusline.sh)",
-      "Bash(claude mcp --help:*)"
+      "Bash(claude mcp --help:*)",
+      "WebFetch(domain:en.wikipedia.org)"
     ]
   }
 }
