@@ -10,7 +10,11 @@
       "WebFetch(domain:www.anthropic.com)",
       "Bash(.claude/statusline.sh)",
       "Bash(claude mcp --help:*)",
-      "WebFetch(domain:en.wikipedia.org)"
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:www.geeksforgeeks.org)",
+      "WebFetch(domain:wiki.python.org)",
+      "WebFetch(domain:blog.jetbrains.com)",
+      "WebFetch(domain:stackify.com)"
     ]
   }
 }
