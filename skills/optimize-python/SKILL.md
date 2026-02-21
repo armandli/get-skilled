@@ -1,10 +1,28 @@
 ---
 name: optimize-python
-description: Reviews Python code and applies performance optimizations drawn from a 23-pattern reference (data structures, loops, strings, memory, profiling, and more). Use when the user asks to "optimize this Python code", "make this Python faster", "apply Python performance improvements", or "review Python for performance". Also invoke automatically after writing non-trivial Python code. Do NOT use for debugging logic errors, explaining code, or writing new Python from scratch.
+description: Reviews Python code and applies performance optimizations drawn from a 23-pattern reference (data structures, loops, strings, memory, profiling, and more). Use when the user asks to "optimize this Python code", "make this Python faster", "apply Python performance improvements", or "review Python for performance". Also invoke automatically after writing non-trivial Python code. Do NOT use for debugging logic errors, explaining code, or writing new Python from scratch. Always run refactor-python on the same code first — do not invoke this skill if refactor-python has not been applied yet.
 argument-hint: "[file or directory path]"
 ---
 
 ## Workflow
+
+### Step 0: Verify Prerequisite
+
+Before proceeding, confirm that `refactor-python` has already been applied to the
+target code in this conversation or session.
+
+- If there is **clear evidence** that `refactor-python` was run (e.g., the user
+  mentioned it, a Refactor Report is visible in the conversation, or utility files
+  exist under `utils/`), proceed to Step 1.
+- If there is **no evidence** that `refactor-python` was run, stop and notify the
+  user:
+
+  > "The `optimize-python` skill should be run after `refactor-python` has been
+  > applied to the same code. Please run `/refactor-python [path]` first, then
+  > re-invoke this skill."
+
+  Do not proceed with any optimization until the user confirms that refactoring is
+  complete or explicitly waives the prerequisite.
 
 ### Step 1: Identify Target Files
 

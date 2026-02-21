@@ -1,6 +1,6 @@
 ---
 name: refactor-python
-description: Scans a Python codebase for duplicate or near-duplicate logic patterns across functions, classes, and files, then extracts those patterns into typed utility classes in a shared module. Use when the user asks to "refactor this Python code", "find duplicate logic", "extract shared utilities", "apply DRY to Python", "deduplicate Python code", or "find repeated patterns in Python". Groups extracted helpers by the object type they operate on (strings, numbers, dates, collections, etc.). Do NOT use for performance optimization (use optimize-python), for debugging logic errors, or for explaining code. Do NOT extract code that appears only once.
+description: Scans a Python codebase for duplicate or near-duplicate logic patterns across functions, classes, and files, then extracts those patterns into typed utility classes in a shared module. Use when the user asks to "refactor this Python code", "find duplicate logic", "extract shared utilities", "apply DRY to Python", "deduplicate Python code", or "find repeated patterns in Python". Groups extracted helpers by the object type they operate on (strings, numbers, dates, collections, etc.). Do NOT use for performance optimization (use optimize-python), for debugging logic errors, or for explaining code. Do NOT extract code that appears only once. Run this skill before optimize-python.
 argument-hint: "[file or directory path]"
 ---
 
