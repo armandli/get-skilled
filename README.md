@@ -43,6 +43,18 @@ Reviews Python code and applies performance optimizations drawn from a 23-patter
 
 Scans a Python codebase for duplicate or near-duplicate logic, then extracts repeated patterns into typed utility classes in a shared module. Groups helpers by the type they operate on (strings, numbers, dates, collections, etc.).
 
+#### `refactor-cpp`
+
+Scans a C++ codebase for duplicate or near-duplicate logic across `.cpp` and `.h` files, then extracts them into reusable utility functions in a `utils/` directory. Template functions are placed in `.h` headers only; non-template utilities get a `.h` declaration and a `.cpp` definition. Groups helpers by operand type (strings, numbers, containers, etc.) and outputs a structured refactor report.
+
+#### `jupyter-to-marimo`
+
+Converts a Jupyter notebook (`.ipynb`) to a marimo notebook (`.py`) by running `marimo convert`, then auditing and fixing the output for magic commands, IPython display calls, anti-patterns, import consolidation into the setup cell, and missing PEP 723 metadata. Validates the result with `marimo check` and leaves `# REVIEW:` comments for patterns that cannot be automatically resolved.
+
+#### `marimo-anywidget`
+
+Creates custom interactive widgets in marimo notebooks using `anywidget`, combining Python `traitlets` state with vanilla JavaScript ESM front-ends. Covers the full widget lifecycle: Python `AnyWidget` subclass, JS `render`/`initialize` functions, CSS scoping, `mo.ui.anywidget()` integration, and reactive downstream cells.
+
 ### Subagents
 
 #### `plan-planter`
@@ -95,10 +107,22 @@ skills/
 │   ├── SKILL.md
 │   └── references/
 │       └── optimization-patterns.md
-└── refactor-python/
+├── refactor-cpp/
+│   ├── SKILL.md
+│   └── references/
+│       └── refactor-patterns.md
+├── refactor-python/
+│   ├── SKILL.md
+│   └── references/
+│       └── refactor-patterns.md
+├── jupyter-to-marimo/
+│   ├── SKILL.md
+│   └── references/
+│       └── CONVERSION-PATTERNS.md
+└── marimo-anywidget/
     ├── SKILL.md
     └── references/
-        └── refactor-patterns.md
+        └── JS-PATTERNS.md
 subagents/
 ├── advent-hacker.md
 └── plan-planter.md
@@ -122,6 +146,9 @@ Example commands:
 - `/marimo-notebook analysis.py` — create or edit a marimo notebook
 - `/optimize-python src/` — apply Python performance optimizations
 - `/refactor-python src/` — extract duplicate Python logic into utilities
+- `/refactor-cpp src/` — extract duplicate C++ logic into shared utilities
+- `/jupyter-to-marimo notebook.ipynb` — convert a Jupyter notebook to marimo
+- `/marimo-anywidget slider "a range slider synced to Python"` — create a custom marimo widget
 
 ## Adding New Skills
 

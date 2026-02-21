@@ -28,5 +28,6 @@
       "WebFetch(domain:anywidget.dev)",
       "WebFetch(domain:marimo.io)"
     ]
-  }
+  },
+  "outputStyle": "default"
 }
