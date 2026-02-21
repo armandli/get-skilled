@@ -14,7 +14,8 @@
       "WebFetch(domain:www.geeksforgeeks.org)",
       "WebFetch(domain:wiki.python.org)",
       "WebFetch(domain:blog.jetbrains.com)",
-      "WebFetch(domain:stackify.com)"
+      "WebFetch(domain:stackify.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
