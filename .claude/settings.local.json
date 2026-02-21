@@ -24,7 +24,9 @@
       "WebFetch(domain:altair-viz.github.io)",
       "WebFetch(domain:docs.scipy.org)",
       "WebFetch(domain:docs.pytorch.org)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "WebFetch(domain:anywidget.dev)",
+      "WebFetch(domain:marimo.io)"
     ]
   }
 }
