@@ -23,7 +23,8 @@
       "WebFetch(domain:docs.pola.rs)",
       "WebFetch(domain:altair-viz.github.io)",
       "WebFetch(domain:docs.scipy.org)",
-      "WebFetch(domain:docs.pytorch.org)"
+      "WebFetch(domain:docs.pytorch.org)",
+      "Bash(echo:*)"
     ]
   }
 }
