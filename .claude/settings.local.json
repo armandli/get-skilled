@@ -24,9 +24,7 @@
       "WebFetch(domain:altair-viz.github.io)",
       "WebFetch(domain:docs.scipy.org)",
       "WebFetch(domain:docs.pytorch.org)",
-      "Bash(echo:*)",
-      "Bash(find /Users/armandli/journal -name \"*.ipynb\" -type f ! -path \"*/.ipynb_checkpoints/*\" -exec ls -lh {} ;)",
-      "Bash(ls -lh /Users/armandli/journal/finance/*.ipynb /Users/armandli/journal/nst/*.ipynb /Users/armandli/journal/math/*.ipynb /Users/armandli/journal/diffusion/*.ipynb /Users/armandli/journal/advent_code/*.ipynb)"
+      "Bash(echo:*)"
     ]
   }
 }
