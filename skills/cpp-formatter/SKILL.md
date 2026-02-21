@@ -1,6 +1,6 @@
 ---
 name: cpp-formatter
-description: Formats C++ code according to 20 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Use when user asks to "format my C++ code", "apply C++ style rules", "clean up this C++ file", or "run cpp-formatter on X". Do NOT use for explaining C++ code, debugging, or writing new C++ code from scratch.
+description: Formats C++ code according to 20 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Use when user asks to "format my C++ code", "apply C++ style rules", "clean up this C++ file", or "run cpp-formatter on X". Run refactor-cpp before this skill. Do NOT use for explaining C++ code, debugging, or writing new C++ code from scratch.
 argument-hint: "[file or directory path]"
 ---
 
