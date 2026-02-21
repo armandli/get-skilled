@@ -15,7 +15,15 @@
       "WebFetch(domain:wiki.python.org)",
       "WebFetch(domain:blog.jetbrains.com)",
       "WebFetch(domain:stackify.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:typer.tiangolo.com)",
+      "Bash(uv run:*)",
+      "WebFetch(domain:docs.marimo.io)",
+      "WebFetch(domain:docs.pytest.org)",
+      "WebFetch(domain:docs.pola.rs)",
+      "WebFetch(domain:altair-viz.github.io)",
+      "WebFetch(domain:docs.scipy.org)",
+      "WebFetch(domain:docs.pytorch.org)"
     ]
   }
 }
