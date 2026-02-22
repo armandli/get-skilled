@@ -26,7 +26,14 @@
       "WebFetch(domain:docs.pytorch.org)",
       "Bash(echo:*)",
       "WebFetch(domain:anywidget.dev)",
-      "WebFetch(domain:marimo.io)"
+      "WebFetch(domain:marimo.io)",
+      "WebFetch(domain:realpython.com)",
+      "WebFetch(domain:docs.aiohttp.org)",
+      "WebFetch(domain:docs.aio-pika.com)",
+      "WebFetch(domain:aiobotocore.aio-libs.org)",
+      "WebFetch(domain:aiokafka.readthedocs.io)",
+      "WebFetch(domain:aio-pika.readthedocs.io)",
+      "WebFetch(domain:aio-pika.com)"
     ]
   },
   "outputStyle": "default"
