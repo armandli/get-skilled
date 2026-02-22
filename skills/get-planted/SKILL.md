@@ -18,7 +18,16 @@ Follow these steps in order. Do not skip steps.
 
 ### Step 1: Determine Mode
 
-The plan file path comes from `$ARGUMENTS`. If no path is given, ask the user for one.
+**Resolve the output path first:**
+
+1. Check whether `docs/plan/` exists in the current working directory.
+2. If `docs/plan/` exists and `$ARGUMENTS` is a bare filename (contains no `/`), prepend `docs/plan/` — e.g. `my-feature.md` → `docs/plan/my-feature.md`.
+3. If `docs/plan/` does not exist, or `$ARGUMENTS` already contains a path separator, use `$ARGUMENTS` as-is.
+4. If `$ARGUMENTS` is empty:
+   - `docs/plan/` exists → ask the user for a filename only; tell them it will be saved under `docs/plan/`.
+   - `docs/plan/` does not exist → ask the user for the full file path.
+
+Then apply the standard mode check on the resolved path:
 
 - **File exists** → Modification mode. Load and parse the plan. Present a summary: title, goal, status, total steps, how many are done/pending/blocked. Ask the user what they want to change.
 - **File does not exist** → Creation mode. Proceed to Step 2.

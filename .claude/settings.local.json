@@ -33,7 +33,8 @@
       "WebFetch(domain:aiobotocore.aio-libs.org)",
       "WebFetch(domain:aiokafka.readthedocs.io)",
       "WebFetch(domain:aio-pika.readthedocs.io)",
-      "WebFetch(domain:aio-pika.com)"
+      "WebFetch(domain:aio-pika.com)",
+      "Bash(git add:*)"
     ]
   },
   "outputStyle": "default"
