@@ -34,7 +34,9 @@
       "WebFetch(domain:aiokafka.readthedocs.io)",
       "WebFetch(domain:aio-pika.readthedocs.io)",
       "WebFetch(domain:aio-pika.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   },
   "outputStyle": "default"
