@@ -23,7 +23,7 @@ A meta-skill that teaches Claude Code how to create new skills. It provides:
 
 Generates a starter C++ file for a new Advent of Code problem, pre-loaded with type aliases, optional 2D/3D coordinate structs, and an input parsing template inferred from an example input file. Accepts an output path, an example input file, and an optional coordinate specifier (`p2`, `pd2`, `pdpd2`, `p3`, `pd3`, `pdpd3`).
 
-#### `cpp-formatter`
+#### `format-cpp`
 
 Formats C++ code according to 20 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Includes a namespace aliases reference and formatting examples.
 
@@ -112,7 +112,7 @@ skills/
 │   └── SKILL.md
 ├── commit-push-pr/
 │   └── SKILL.md
-├── cpp-formatter/
+├── format-cpp/
 │   ├── SKILL.md
 │   └── references/
 │       ├── examples.md
@@ -186,7 +186,7 @@ Example commands:
 - `/async-python fetch_data process_results` — convert named functions to async
 - `/commit-push` — stage, commit, and push current changes
 - `/commit-push-pr` — create a branch, commit, and push to upstream
-- `/cpp-formatter src/main.cpp` — format C++ files
+- `/format-cpp src/main.cpp` — format C++ files
 - `/get-planted plan.md` — create a structured development plan
 - `/jupyter-to-marimo notebook.ipynb` — convert a Jupyter notebook to marimo
 - `/marimo-anywidget slider "a range slider synced to Python"` — create a custom marimo widget
