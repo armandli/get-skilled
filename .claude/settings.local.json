@@ -36,7 +36,8 @@
       "WebFetch(domain:aio-pika.com)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git:*)"
     ]
   },
   "outputStyle": "default"

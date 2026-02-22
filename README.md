@@ -55,6 +55,30 @@ Converts a Jupyter notebook (`.ipynb`) to a marimo notebook (`.py`) by running `
 
 Creates custom interactive widgets in marimo notebooks using `anywidget`, combining Python `traitlets` state with vanilla JavaScript ESM front-ends. Covers the full widget lifecycle: Python `AnyWidget` subclass, JS `render`/`initialize` functions, CSS scoping, `mo.ui.anywidget()` integration, and reactive downstream cells.
 
+#### `async-python`
+
+Converts one or more named Python functions from synchronous to asynchronous using `asyncio`. Locates the functions in the repo, builds a call graph and inter-function communication map, then applies `async`/`await` syntax and replaces sync I/O libraries with async equivalents (`requests` → `aiohttp`, `pika` → `aio-pika`, `boto3` → `aiobotocore`, `kafka-python` → `aiokafka`, `queue.Queue` → `asyncio.Queue`). Flags helper functions and threading-boundary queues for manual review.
+
+#### `agent-cookiecutter`
+
+Scaffolds an agent-friendly project structure by creating `docs/memory/` and `docs/plan/` directories, four memory markdown files (`adr.md`, `config.md`, `bug.md`, `issue.md`), and a `.claude/CLAUDE.md` that instructs the agent how to use them. Skips any files or directories that already exist.
+
+#### `agent-memory`
+
+Manages the four agent memory files created by `agent-cookiecutter`. Enforces table schemas for `adr.md` (architectural decisions), `bug.md` (bug fix history), and `issue.md` (open issues), and free-form sections for `config.md`. Handles the full issue-to-bug promotion lifecycle and blocks recording of secrets or credentials.
+
+#### `commit-push`
+
+Commits all current changes and pushes to the remote `origin` on the current branch. Stages everything, generates a context-aware commit message by analyzing the diff and recent commit style, creates the commit, and pushes. Stops cleanly if there are no changes.
+
+#### `commit-push-pr`
+
+Creates a new branch named after the changes, stages all current changes, commits them, and pushes to `upstream` (falls back to `origin` if absent). Derives both the branch name and commit message from the staged diff and recent commit log.
+
+#### `pull`
+
+Syncs the local `main` branch with the default remote. Switches to `main` first (warning about and discarding uncommitted changes if needed), runs `git pull`, and resolves merge conflicts by reverting local changes in favor of remote. Reports branch, sync status, and recent commits when done.
+
 ### Subagents
 
 #### `plan-planter`
@@ -74,6 +98,20 @@ skills/
 │   └── references/
 │       ├── parsing-templates.md
 │       └── struct-templates.md
+├── agent-cookiecutter/
+│   └── SKILL.md
+├── agent-memory/
+│   └── SKILL.md
+├── async-python/
+│   ├── SKILL.md
+│   └── references/
+│       ├── asyncio-patterns.md
+│       ├── concurrency-patterns.md
+│       └── library-conversions.md
+├── commit-push/
+│   └── SKILL.md
+├── commit-push-pr/
+│   └── SKILL.md
 ├── cpp-formatter/
 │   ├── SKILL.md
 │   └── references/
@@ -90,6 +128,14 @@ skills/
 │   └── references/
 │       ├── plan-format.md
 │       └── scrutiny-checklist.md
+├── jupyter-to-marimo/
+│   ├── SKILL.md
+│   └── references/
+│       └── CONVERSION-PATTERNS.md
+├── marimo-anywidget/
+│   ├── SKILL.md
+│   └── references/
+│       └── JS-PATTERNS.md
 ├── marimo-notebook/
 │   ├── SKILL.md
 │   └── references/
@@ -107,22 +153,16 @@ skills/
 │   ├── SKILL.md
 │   └── references/
 │       └── optimization-patterns.md
+├── pull/
+│   └── SKILL.md
 ├── refactor-cpp/
 │   ├── SKILL.md
 │   └── references/
 │       └── refactor-patterns.md
-├── refactor-python/
-│   ├── SKILL.md
-│   └── references/
-│       └── refactor-patterns.md
-├── jupyter-to-marimo/
-│   ├── SKILL.md
-│   └── references/
-│       └── CONVERSION-PATTERNS.md
-└── marimo-anywidget/
+└── refactor-python/
     ├── SKILL.md
     └── references/
-        └── JS-PATTERNS.md
+        └── refactor-patterns.md
 subagents/
 ├── advent-hacker.md
 └── plan-planter.md
@@ -141,14 +181,20 @@ claude
 Example commands:
 - `/create-skill` — scaffold a new skill
 - `/advent-cookiecutter day01.cpp input.txt pd2` — generate a C++ AoC starter
+- `/agent-cookiecutter` — scaffold agent memory structure for a project
+- `/agent-memory` — add an ADR, log a bug fix, or resolve an open issue
+- `/async-python fetch_data process_results` — convert named functions to async
+- `/commit-push` — stage, commit, and push current changes
+- `/commit-push-pr` — create a branch, commit, and push to upstream
 - `/cpp-formatter src/main.cpp` — format C++ files
 - `/get-planted plan.md` — create a structured development plan
-- `/marimo-notebook analysis.py` — create or edit a marimo notebook
-- `/optimize-python src/` — apply Python performance optimizations
-- `/refactor-python src/` — extract duplicate Python logic into utilities
-- `/refactor-cpp src/` — extract duplicate C++ logic into shared utilities
 - `/jupyter-to-marimo notebook.ipynb` — convert a Jupyter notebook to marimo
 - `/marimo-anywidget slider "a range slider synced to Python"` — create a custom marimo widget
+- `/marimo-notebook analysis.py` — create or edit a marimo notebook
+- `/optimize-python src/` — apply Python performance optimizations
+- `/pull` — sync local main branch with remote
+- `/refactor-cpp src/` — extract duplicate C++ logic into shared utilities
+- `/refactor-python src/` — extract duplicate Python logic into utilities
 
 ## Adding New Skills
 
