@@ -1,0 +1,164 @@
+---
+name: update-readme
+description: Updates a project README.md with build instructions, unit test instructions, and a mermaid architecture diagram. Use when a project README needs to be created or refreshed. Trigger phrases: "update readme", "generate readme", "create readme", "refresh readme docs". Emphasizes project interfaces, extension points, and customization hooks in the diagram — not concrete implementations. Do NOT use for documentation sites, wikis, or non-project READMEs.
+argument-hint: "[project root path, defaults to current directory]"
+---
+
+You are generating a high-quality README.md for a software project. Follow these steps precisely.
+
+## Step 1: Locate Project Root
+
+Use `$ARGUMENTS` as the project root if provided, otherwise use `${PWD}`.
+
+Set `PROJECT_ROOT` to that path. All subsequent file operations are relative to it.
+
+## Step 2: Detect Project Name
+
+Read the project name from:
+- `package.json` → `"name"` field
+- `pyproject.toml` or `setup.py` → project name
+- `Cargo.toml` → `[package] name`
+- `pom.xml` → `<artifactId>`
+- `CMakeLists.txt` → `project(...)` call
+- Directory basename as fallback
+
+## Step 3: Detect Build System and Extract Build Instructions
+
+Scan for build files in this priority order. For each match, derive the canonical build command(s):
+
+| File | Build command |
+|------|---------------|
+| `Makefile` | `make` or `make all` (check default target) |
+| `CMakeLists.txt` | `cmake -B build && cmake --build build` |
+| `pyproject.toml` (with `[build-system]`) | `pip install -e .` or `python -m build` |
+| `setup.py` | `pip install -e .` |
+| `Cargo.toml` | `cargo build` / `cargo build --release` |
+| `package.json` (scripts.build) | `npm run build` or `yarn build` |
+| `build.gradle` | `./gradlew build` |
+| `pom.xml` | `mvn package` |
+
+Read the actual file to confirm commands rather than guessing. If a `Makefile` exists, scan its top-level targets. If a `README` already exists, do NOT copy its content—generate fresh.
+
+## Step 4: Detect Test Framework and Extract Test Instructions
+
+Scan for test configurations:
+
+| Indicator | Test command |
+|-----------|--------------|
+| `Makefile` with `test` target | `make test` |
+| `pytest.ini`, `pyproject.toml` `[tool.pytest]`, `conftest.py` | `pytest` |
+| `setup.cfg` with `[tool:pytest]` | `pytest` |
+| `Cargo.toml` | `cargo test` |
+| `package.json` scripts.test | `npm test` or `yarn test` |
+| `jest.config.*` | `npx jest` |
+| `build.gradle` | `./gradlew test` |
+| `pom.xml` | `mvn test` |
+| `CMakeLists.txt` with `enable_testing()` | `cmake --build build && ctest --test-dir build` |
+
+Read actual Makefile targets or config files to confirm. Note any environment variables or prerequisites (e.g., `pip install -e .[test]` before running pytest).
+
+## Step 5: Explore Source Code for Architecture
+
+Recursively explore the source tree. Focus on:
+
+**Interfaces and extension points** (these are PRIMARY diagram nodes):
+- TypeScript/JavaScript: `interface`, `abstract class`, `type` (when used as structural contracts)
+- Python: `Protocol`, `ABC`/`ABCMeta`, classes with `@abstractmethod`, base classes ending in `Base` or `Abstract`
+- Java/Kotlin: `interface`, `abstract class`
+- Rust: `trait`
+- Go: `interface`
+- C++: classes with pure virtual methods (`= 0`), base classes in headers
+- Any plugin hooks, callback signatures, middleware types, event emitters defined in the repo
+
+**Briefly note** (SECONDARY diagram nodes):
+- Concrete implementations of the above
+- External/third-party types that the interfaces depend on or extend
+
+**Ignore** (omit from diagram):
+- Private implementation details inside concrete classes
+- Test code
+- Generated code
+- Vendored/third-party source
+
+Use Glob and Grep tools to find interface/abstract definitions efficiently. Read key files to understand relationships.
+
+## Step 6: Build Mermaid Architecture Diagram
+
+Construct a `classDiagram` (preferred) or `graph TD` (for simpler projects).
+
+**Rules:**
+1. **Primary nodes** = repo-defined interfaces, protocols, abstract classes, traits. Use `<<interface>>`, `<<abstract>>`, `<<protocol>>` stereotypes in classDiagram.
+2. **Secondary nodes** = concrete implementations (show only 1-2 key ones if illustrative), external types. Use `<<external>>` or note them as external.
+3. Show methods/fields ONLY for interfaces and abstract classes — their signatures define the contract.
+4. Use `--|>` for inheritance, `..|>` for interface implementation, `-->` for dependency/usage.
+5. Keep the diagram focused: 5–15 nodes is ideal. Do not dump every class.
+6. Group logically with `note` annotations if helpful.
+
+Example skeleton:
+```
+classDiagram
+    class Processor {
+        <<interface>>
+        +process(input: Input) Output
+        +validate(input: Input) bool
+    }
+    class BaseProcessor {
+        <<abstract>>
+        +process(input: Input) Output
+        #doProcess(input: Input) Output*
+    }
+    class Plugin {
+        <<interface>>
+        +name() string
+        +execute(ctx: Context) void
+    }
+    BaseProcessor ..|> Processor
+    ConcreteProcessor --|> BaseProcessor
+    note for Plugin "Extension point: implement to add custom processing steps"
+```
+
+## Step 7: Write README.md
+
+Write `README.md` at `PROJECT_ROOT/README.md` with this exact structure:
+
+```markdown
+# <Project Name>
+
+<One or two sentence description of what the project does. Derive from package metadata, existing docs, or top-level source comments. Keep it factual.>
+
+## Building
+
+<Prerequisites if any (e.g., "Requires CMake 3.20+, a C++17 compiler")>
+
+```sh
+<build command(s)>
+```
+
+## Running Tests
+
+<Prerequisites if any (e.g., "Install test dependencies first: pip install -e .[test]")>
+
+```sh
+<test command(s)>
+```
+
+## Architecture
+
+The diagram below shows the primary interfaces, protocols, and extension points defined in this project. Concrete implementations and external dependencies are shown for context only.
+
+```mermaid
+<diagram here>
+```
+
+### Key Abstractions
+
+<For each primary interface/abstract class in the diagram, one bullet:>
+- **`InterfaceName`** — what it represents and why it's an extension point
+```
+
+**Writing rules:**
+- Do NOT include a license section unless a LICENSE file exists.
+- Do NOT include a "Contributing" section unless a CONTRIBUTING.md exists.
+- Do NOT pad with filler text or marketing language.
+- If a section genuinely has no content (e.g., no interfaces found), write a minimal honest note rather than fabricating content.
+- Overwrite any existing README.md without asking.
