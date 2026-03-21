@@ -1,21 +1,110 @@
 ---
 name: agent-memory
-description: Defines the schema and lifecycle rules for the four agent memory files
-  created by agent-cookiecutter (adr.md, config.md, bug.md, issue.md). Enforces table
-  formats, safe/forbidden config fields, and the issue-to-bug promotion workflow. Use
-  when the user asks to "add an ADR", "record an architectural decision", "log a bug
-  fix", "add a bug", "add an issue", "update config memory", "resolve an issue",
-  "move issue to bug", or "update memory files". Do NOT use for scaffolding the
-  directory structure (use agent-cookiecutter) or for committing/pushing changes.
+description: Sets up agent memory project structure and manages the four agent memory
+  files (adr.md, config.md, bug.md, issue.md). Handles scaffolding (creating docs/memory,
+  docs/plan directories, memory files, and .claude/CLAUDE.md) and memory operations
+  (adding ADRs, logging bug fixes, tracking issues, updating config, resolving issues).
+  Use when the user asks to "set up agent memory", "scaffold agent project structure",
+  "initialize agent cookiecutter", "run agent-cookiecutter", "set up agent project",
+  "add an ADR", "record an architectural decision", "log a bug fix", "add a bug",
+  "add an issue", "update config memory", "resolve an issue", "move issue to bug",
+  or "update memory files". Do NOT use for committing or pushing changes.
 ---
 
 # agent-memory Skill
 
-This skill governs how you read and write the four agent memory files in `docs/memory/`. Follow all five steps in order for every operation.
+## Detect Intent
+
+Determine which path to follow based on the user's request:
+
+- **Setup / Scaffold** — user wants to initialize the project structure (create directories, memory files, CLAUDE.md). Go to **Path A**.
+- **Memory Operations** — user wants to read or write one of the four memory files. Go to **Path B**.
 
 ---
 
-## Step 1 — Identify Intent and Read Target File(s)
+## Path A — Setup / Scaffold
+
+### Step A1 — Verify Working Directory
+
+Run `pwd` and `git rev-parse --show-toplevel 2>/dev/null`.
+
+- If the git root differs from `pwd`, warn the user and stop. All paths must be relative to the repo root.
+
+---
+
+### Step A2 — Create Directories
+
+Run:
+```
+mkdir -p docs/memory docs/plan
+```
+
+Both are created with `-p` (no error if already present).
+
+---
+
+### Step A3 — Create Memory Files
+
+Use Glob to check which files already exist: `docs/memory/*.md`.
+
+For each file not already present, use the Write tool to create it:
+
+- `docs/memory/adr.md` — content: `# Architectural Decision Records`
+- `docs/memory/config.md` — content: `# Project Configuration`
+- `docs/memory/bug.md` — content: `# Bug Fix History`
+- `docs/memory/issue.md` — content: `# Open Issues`
+
+Skip any file that already exists.
+
+---
+
+### Step A4 — Create `.claude/CLAUDE.md`
+
+Use Glob to check whether `.claude/CLAUDE.md` already exists.
+
+Only if it does not exist:
+
+1. Run `mkdir -p .claude` to ensure the directory is present.
+2. Use the Write tool to create `.claude/CLAUDE.md` with this exact content:
+
+```markdown
+# Agent Memory
+
+This project uses structured memory files to maintain context across sessions.
+
+## Architecture Decisions
+
+When making changes to project architecture or significant design decisions, read and update `docs/memory/adr.md` to record the decision, rationale, and consequences.
+
+## Configuration and Settings
+
+When changing project configurations or settings, read and update `docs/memory/config.md` to reflect the current configuration state.
+
+## Bug Tracking
+
+When fixing bugs:
+- Check `docs/memory/bug.md` for historical bug fixes that may be relevant.
+- After fixing a bug, record the fix and its root cause in `docs/memory/bug.md`.
+- Check `docs/memory/issue.md` for currently open issues.
+- When resolving an open issue, move it from `docs/memory/issue.md` to `docs/memory/bug.md`.
+```
+
+If `.claude/CLAUDE.md` already exists, skip creation.
+
+---
+
+### Step A5 — Report
+
+Print a summary listing:
+- Directories created (or already existed)
+- Each memory file: created or already present
+- `.claude/CLAUDE.md`: created or skipped (already exists)
+
+---
+
+## Path B — Memory Operations
+
+### Step B1 — Identify Intent and Read Target File(s)
 
 Determine which operation is requested from the table below, then read all target files before making any edits.
 
@@ -29,9 +118,9 @@ Determine which operation is requested from the table below, then read all targe
 
 ---
 
-## Step 2 — Apply File-Specific Schema
+### Step B2 — Apply File-Specific Schema
 
-### `adr.md` — Architectural Decision Records
+#### `adr.md` — Architectural Decision Records
 
 Maintain as a Markdown table with exactly these 5 columns in order:
 
@@ -48,7 +137,7 @@ Append new rows; never delete existing rows.
 
 ---
 
-### `config.md` — Project Configuration
+#### `config.md` — Project Configuration
 
 Free-form Markdown organized by service or category. Each entry should document one of:
 
@@ -70,7 +159,7 @@ If the user attempts to write forbidden content, stop, warn them, and omit the s
 
 ---
 
-### `bug.md` — Bug Fix History
+#### `bug.md` — Bug Fix History
 
 Maintain as a Markdown table with exactly these 5 columns in order:
 
@@ -87,7 +176,7 @@ Append new rows; never delete existing rows.
 
 ---
 
-### `issue.md` — Open Issues
+#### `issue.md` — Open Issues
 
 Maintain as a Markdown table with exactly these 2 columns in order:
 
@@ -101,7 +190,7 @@ Append new rows for new issues.
 
 ---
 
-## Step 3 — Issue Resolution Lifecycle
+### Step B3 — Issue Resolution Lifecycle
 
 When an issue is resolved (user says the bug is fixed, issue is closed, etc.):
 
@@ -120,7 +209,7 @@ If cause or solution is unknown, ask the user before writing.
 
 ---
 
-## Step 4 — Write Back
+### Step B4 — Write Back
 
 Use the Edit tool (not Write) to make targeted updates so existing content is preserved.
 
@@ -131,7 +220,7 @@ Use the Edit tool (not Write) to make targeted updates so existing content is pr
 
 ---
 
-## Step 5 — Report
+### Step B5 — Report
 
 After every operation, confirm:
 - Which file(s) were updated
