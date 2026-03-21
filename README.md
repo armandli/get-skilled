@@ -23,6 +23,14 @@ A meta-skill that teaches Claude Code how to create new skills. It provides:
 
 Generates a starter C++ file for a new Advent of Code problem, pre-loaded with type aliases, optional 2D/3D coordinate structs, and an input parsing template inferred from an example input file. Accepts an output path, an example input file, and an optional coordinate specifier (`p2`, `pd2`, `pdpd2`, `p3`, `pd3`, `pdpd3`).
 
+#### `cpp-cookiecutter`
+
+Sets up a standard C++ project repo structure with `src/`, `test/`, and `bin/` directories, plus a root `CMakeLists.txt`, `src/CMakeLists.txt`, and `test/CMakeLists.txt` with FetchContent GTest integration. Requires a project name argument.
+
+#### `python-cookiecutter`
+
+Sets up a standard Python package development repo structure with `bin/`, `etc/`, `notebooks/`, `source/` (Python source), `src/` (C++ source), and `test/` directories, plus a templated `setup.py` and `pyproject.toml` for local dev and pybind11 C++ bindings. Requires a package name argument.
+
 #### `format-cpp`
 
 Formats C++ code according to 20 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Includes a namespace aliases reference and formatting examples.
@@ -59,13 +67,9 @@ Creates custom interactive widgets in marimo notebooks using `anywidget`, combin
 
 Converts one or more named Python functions from synchronous to asynchronous using `asyncio`. Locates the functions in the repo, builds a call graph and inter-function communication map, then applies `async`/`await` syntax and replaces sync I/O libraries with async equivalents (`requests` → `aiohttp`, `pika` → `aio-pika`, `boto3` → `aiobotocore`, `kafka-python` → `aiokafka`, `queue.Queue` → `asyncio.Queue`). Flags helper functions and threading-boundary queues for manual review.
 
-#### `agent-cookiecutter`
-
-Scaffolds an agent-friendly project structure by creating `docs/memory/` and `docs/plan/` directories, four memory markdown files (`adr.md`, `config.md`, `bug.md`, `issue.md`), and a `.claude/CLAUDE.md` that instructs the agent how to use them. Skips any files or directories that already exist.
-
 #### `agent-memory`
 
-Manages the four agent memory files created by `agent-cookiecutter`. Enforces table schemas for `adr.md` (architectural decisions), `bug.md` (bug fix history), and `issue.md` (open issues), and free-form sections for `config.md`. Handles the full issue-to-bug promotion lifecycle and blocks recording of secrets or credentials.
+Sets up an agent memory project structure and manages the four agent memory files (`adr.md`, `config.md`, `bug.md`, `issue.md`). Handles both scaffolding (creating `docs/memory/`, `docs/plan/`, memory files, and `.claude/CLAUDE.md`) and memory operations (adding ADRs, logging bug fixes, tracking open issues, updating config). Enforces table schemas, blocks recording secrets or credentials, and handles the full issue-to-bug promotion lifecycle.
 
 #### `commit-push`
 
@@ -78,6 +82,18 @@ Creates a new branch named after the changes, stages all current changes, commit
 #### `pull`
 
 Syncs the local `main` branch with the default remote. Switches to `main` first (warning about and discarding uncommitted changes if needed), runs `git pull`, and resolves merge conflicts by reverting local changes in favor of remote. Reports branch, sync status, and recent commits when done.
+
+#### `update-readme`
+
+Updates a project `README.md` with a description, build instructions, test instructions, and a Mermaid architecture diagram. Emphasizes interfaces, protocols, and extension points in the diagram — not concrete implementations.
+
+#### `current-time`
+
+Retrieves the current date and time in a configured timezone. Can be invoked directly or used internally by other skills that require timestamps. With a timezone argument, validates and persists the new default timezone.
+
+#### `skill-stat`
+
+Records skill usage statistics and issue reports into `.claude/skill-stats.md`. Increments the Uses count for a skill name and optionally logs an issue report that increments the Issues count and appends a row to the Issue Reports table.
 
 ### Subagents
 
@@ -98,8 +114,6 @@ skills/
 │   └── references/
 │       ├── parsing-templates.md
 │       └── struct-templates.md
-├── agent-cookiecutter/
-│   └── SKILL.md
 ├── agent-memory/
 │   └── SKILL.md
 ├── async-python/
@@ -112,17 +126,21 @@ skills/
 │   └── SKILL.md
 ├── commit-push-pr/
 │   └── SKILL.md
-├── format-cpp/
-│   ├── SKILL.md
-│   └── references/
-│       ├── examples.md
-│       └── namespace-aliases.md
+├── cpp-cookiecutter/
+│   └── SKILL.md
 ├── create-skill/
 │   ├── SKILL.md
 │   └── references/
 │       ├── checklist.md
 │       ├── hooks-best-practices.md
 │       └── patterns.md
+├── current-time/
+│   └── SKILL.md
+├── format-cpp/
+│   ├── SKILL.md
+│   └── references/
+│       ├── examples.md
+│       └── namespace-aliases.md
 ├── get-planted/
 │   ├── SKILL.md
 │   └── references/
@@ -155,15 +173,21 @@ skills/
 │       └── optimization-patterns.md
 ├── pull/
 │   └── SKILL.md
+├── python-cookiecutter/
+│   └── SKILL.md
 ├── refactor-cpp/
 │   ├── SKILL.md
 │   └── references/
 │       └── refactor-patterns.md
-└── refactor-python/
-    ├── SKILL.md
-    └── references/
-        └── refactor-patterns.md
-subagents/
+├── refactor-python/
+│   ├── SKILL.md
+│   └── references/
+│       └── refactor-patterns.md
+├── skill-stat/
+│   └── SKILL.md
+└── update-readme/
+    └── SKILL.md
+agents/
 ├── advent-hacker.md
 └── plan-planter.md
 ```
@@ -181,11 +205,12 @@ claude
 Example commands:
 - `/create-skill` — scaffold a new skill
 - `/advent-cookiecutter day01.cpp input.txt pd2` — generate a C++ AoC starter
-- `/agent-cookiecutter` — scaffold agent memory structure for a project
-- `/agent-memory` — add an ADR, log a bug fix, or resolve an open issue
+- `/agent-memory` — set up agent memory structure, or add an ADR, log a bug fix, or resolve an open issue
 - `/async-python fetch_data process_results` — convert named functions to async
 - `/commit-push` — stage, commit, and push current changes
 - `/commit-push-pr` — create a branch, commit, and push to upstream
+- `/cpp-cookiecutter myproject` — scaffold a C++ project with CMake and GTest
+- `/current-time` — get current date/time; `/current-time America/New_York` to set timezone
 - `/format-cpp src/main.cpp` — format C++ files
 - `/get-planted plan.md` — create a structured development plan
 - `/jupyter-to-marimo notebook.ipynb` — convert a Jupyter notebook to marimo
@@ -193,8 +218,11 @@ Example commands:
 - `/marimo-notebook analysis.py` — create or edit a marimo notebook
 - `/optimize-python src/` — apply Python performance optimizations
 - `/pull` — sync local main branch with remote
+- `/python-cookiecutter mypackage` — scaffold a Python package with pybind11 support
 - `/refactor-cpp src/` — extract duplicate C++ logic into shared utilities
 - `/refactor-python src/` — extract duplicate Python logic into utilities
+- `/skill-stat agent-memory` — record a skill usage stat
+- `/update-readme` — generate or refresh the project README
 
 ## Adding New Skills
 
