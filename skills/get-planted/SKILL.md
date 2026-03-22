@@ -108,3 +108,13 @@ Do not proceed to Step 6 if any circular dependencies remain unresolved.
 - **Circular dependencies detected** → List the cycle. Must be resolved before saving.
 - **User abandons mid-workflow** → Offer to save current progress with `status: draft` in the frontmatter.
 - **30+ steps** → Suggest splitting into multiple plan files. Each file should be a coherent sub-plan with clear entry and exit points.
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "get-planted"
+```

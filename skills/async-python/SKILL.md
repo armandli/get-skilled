@@ -142,3 +142,13 @@ Output a structured summary:
 - If a shared queue also crosses a thread boundary, flag it — do not replace with `asyncio.Queue`
 - Never remove a library import if it is referenced elsewhere in the file
 - One pass per file — apply all changes in a single edit per file
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "async-python"
+```

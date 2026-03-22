@@ -23,3 +23,13 @@ Execute the current-time script to get or configure the current date/time.
 - Display current date/time in the stored timezone (UTC if none configured)
 
 Timezone preference is persisted at `~/.claude/current-timezone`.
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "current-time"
+```

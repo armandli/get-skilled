@@ -122,3 +122,13 @@ Print a summary listing:
 - `source/__init__.py`: created or skipped (already exists)
 - `setup.py`: created or skipped (already exists)
 - `pyproject.toml`: created or skipped (already exists)
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "python-cookiecutter"
+```

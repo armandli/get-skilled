@@ -104,3 +104,14 @@ showing the recommended form when it aids clarity.
 
 - For all 23 optimization patterns with signals and code examples, see
   [references/optimization-patterns.md](references/optimization-patterns.md)
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run (record both the dependency and this skill):
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "refactor-python"
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "optimize-python"
+```

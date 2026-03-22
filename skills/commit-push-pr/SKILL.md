@@ -12,6 +12,14 @@ Run `git status` and `git diff` in parallel.
 
 If there are **no changes** (no untracked files, no modifications), output "No changes to commit." and **stop immediately**.
 
+## Step 1.5 — Record Usage
+
+Record this skill's usage now (before staging) so the stats file is included in the commit:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "commit-push-pr"
+```
+
 ## Step 2 — Stage All Changes
 
 Run `git add -A` to stage all changes including untracked files.

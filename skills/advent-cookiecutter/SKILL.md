@@ -136,3 +136,13 @@ Then report:
 
 - Coordinate struct code → [references/struct-templates.md](references/struct-templates.md)
 - Parsing template code → [references/parsing-templates.md](references/parsing-templates.md)
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "advent-cookiecutter"
+```

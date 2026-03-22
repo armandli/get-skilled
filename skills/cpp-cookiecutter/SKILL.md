@@ -132,3 +132,13 @@ Print a summary listing each item and whether it was created or skipped (already
 - `test/CMakeLists.txt`: created or skipped (already exists)
 - `src/<project_name>.cpp`: created or skipped (already exists)
 - `test/<project_name>_test.cpp`: created or skipped (already exists)
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "cpp-cookiecutter"
+```

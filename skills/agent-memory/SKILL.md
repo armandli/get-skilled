@@ -236,3 +236,13 @@ After every operation, confirm:
 - Never delete rows from `issue.md` except when promoting to `bug.md`
 - Always read before writing — do not overwrite content blindly
 - If a table header row is missing from a file, add it before appending data rows
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "agent-memory"
+```

@@ -165,3 +165,14 @@ Add `#include <optional>` if not already present.
 
 - For the predefined namespace alias mapping, see [references/namespace-aliases.md](references/namespace-aliases.md)
 - For before/after examples of every rule, see [references/examples.md](references/examples.md)
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run (record both the dependency and this skill):
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "refactor-cpp"
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "format-cpp"
+```

@@ -192,3 +192,13 @@ The diagram below shows the primary interfaces, protocols, and extension points 
 - Do NOT pad with filler text or marketing language.
 - If a section genuinely has no content (e.g., no interfaces found), write a minimal honest note rather than fabricating content.
 - Overwrite any existing README.md without asking.
+
+---
+
+## Final Step — Record Usage
+
+After the skill's primary task completes, run:
+
+```bash
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "update-readme"
+```

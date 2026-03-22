@@ -27,13 +27,13 @@ Error: skill name is required. Usage: /skill-stat <skill-name> [issue-report]
 If `$2` is provided (issue report present):
 
 ```bash
-python3 ${PWD}/skills/skill-stat/scripts/record-stat.py "$1" "$2"
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "$1" "$2"
 ```
 
 If `$2` is not provided:
 
 ```bash
-python3 ${PWD}/skills/skill-stat/scripts/record-stat.py "$1"
+python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "$1"
 ```
 
 ### Step 3 — Report Result
