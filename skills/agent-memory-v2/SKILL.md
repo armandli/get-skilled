@@ -1,13 +1,28 @@
 ---
 name: agent-memory-v2
-description: Sets up and manages diagram-driven project memory in docs/memory/. Scaffolds directories (docs/memory, docs/plans), creates memory files (kanban.md, architecture.md, adr.md, config.md, bug.md), and writes CLAUDE.md to guide future sessions. Diagrams in docs/memory drive source code changes. Use when the user asks to "set up agent memory v2", "scaffold project structure", "initialize memory", "add an ADR", "log a bug fix", "update config memory", "update kanban", "sync code from diagram", "update source from architecture", "reflect diagram changes in code", or "update memory files". Depends on mermaid-diagram-guide for diagram syntax. Do NOT use for committing or pushing changes, and do NOT use the old agent-memory skill for v2 projects.
+description: Sets up and manages diagram-driven project memory in docs/memory/. Scaffolds directories (docs/memory, docs/plans), creates memory files (kanban.md, architecture.md, adr.md, config.md, bug.md), and writes CLAUDE.md to guide future sessions. Diagrams in docs/memory drive source code changes. Use when the user asks to "set up agent memory v2", "scaffold project structure", "initialize memory", "add an ADR", "log a bug fix", "update config memory", "update kanban", "create kanban item", "move item to in progress", "complete a kanban item", "sync code from diagram", "update source from architecture", "reflect diagram changes in code", or "update memory files". Also triggered by command-style invocations: "agent-memory-v2 create-item", "agent-memory-v2 progress", "agent-memory-v2 complete". Depends on mermaid-diagram-guide for diagram syntax. Do NOT use for committing or pushing changes, and do NOT use the old agent-memory skill for v2 projects.
+argument-hint: "[create-item <name> \"details\" | progress <name> | complete <name>]"
 ---
 
 # agent-memory-v2 Skill
 
 ## Detect Intent
 
-Determine which path to follow:
+### Command-Style Invocation (check first)
+
+If `$ARGUMENTS` is present, parse it as a kanban command and go directly to **Path B-Kanban**:
+
+| Invocation | Action |
+|-----------|--------|
+| `create-item <name> "details"` | Create new item in the `open` column with the given name and details |
+| `progress <name>` | Move item matching `<name>` from `open` → `inprogress` |
+| `complete <name>` | Move item matching `<name>` from any column → `complete` |
+
+Item name matching is case-insensitive and partial — match the closest item if exact match not found. If ambiguous (multiple partial matches), list them and ask the user to clarify.
+
+### Natural Language Invocation
+
+If no `$ARGUMENTS`, determine the path from the user's message:
 
 - **Setup / Scaffold** — initialize project structure, create dirs, memory files, CLAUDE.md. → **Path A**
 - **Memory Operations** — read/write kanban, ADR, config, or bug files. → **Path B**
@@ -69,7 +84,45 @@ Print a summary:
 
 ---
 
-## Path B — Memory Operations
+## Path B-Kanban — Kanban Command Operations
+
+This path handles both command-style (`$ARGUMENTS`) and natural-language kanban requests.
+
+### Step BK1 — Read Kanban File
+
+Read `docs/memory/kanban.md`. Parse the mermaid `kanban` block to extract the current items and their columns.
+
+### Step BK2 — Execute the Operation
+
+**`create-item <name> "details"`** (or natural language equivalent: "add kanban item", "create task"):
+- Generate a unique item ID: slugify the name (lowercase, hyphens, max 30 chars), e.g. `fix-auth-bug`
+- If an item with the same ID already exists, append a short suffix (`-2`, `-3`, etc.)
+- Add the new item under the `open` column:
+  ```
+  open[Open]
+      fix-auth-bug[Fix auth bug — details here]
+  ```
+- The label should be: `name — details` (em dash separator). If no details provided, use just the name.
+
+**`progress <name>`** (or "move to in progress", "start working on"):
+- Find the item in the `open` column whose label best matches `<name>`
+- Move it: remove from `open`, add under `inprogress`
+- Preserve all other items exactly
+
+**`complete <name>`** (or "complete item", "mark done", "finish"):
+- Find the item in any column whose label best matches `<name>`
+- Move it: remove from current column, add under `complete`
+- Preserve all other items exactly
+
+### Step BK3 — Write Back
+
+Use the Edit tool to update the mermaid `kanban` block in `docs/memory/kanban.md`. Replace only the fenced code block — preserve the heading and any surrounding text.
+
+### Step BK4 — Report
+
+State: which item was affected, what operation was performed, and which column it now lives in.
+
+---
 
 ### Step B1 — Identify Target File(s)
 
