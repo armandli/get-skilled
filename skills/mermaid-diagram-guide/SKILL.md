@@ -4,6 +4,16 @@ description: Reference guide for Mermaid diagram syntax covering all major diagr
 argument-hint: "[diagram-type]"
 ---
 
+## Validation
+
+To validate a diagram, write its content (without markdown fences) to a `.mmd` file. A `PostToolUse`
+hook will automatically run `mmdc -i <file> -o <tmp>.svg` and feed any syntax errors back so you can
+fix them. If `mmdc` is not installed, validation is skipped; the user can install it with:
+
+```
+npm install -g @mermaid-js/mermaid-cli
+```
+
 ## Overview
 
 Mermaid diagrams are declared with a diagram type keyword followed by content. All diagrams can be embedded in markdown with triple-backtick fences:
