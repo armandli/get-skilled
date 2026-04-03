@@ -1,6 +1,6 @@
 # CLAUDE.md Content
 
-This is the content to write into the root `CLAUDE.md` when creating it fresh (Path A, Step A4).
+This is the content to write into `.claude/CLAUDE.md` when creating it fresh (Path A, Step A4).
 
 When the file already exists, append only the section below that is not already present.
 

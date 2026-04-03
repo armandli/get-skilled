@@ -66,12 +66,13 @@ Skip any file that already exists — never overwrite existing memory.
 
 ---
 
-### Step A4 — Create or Update Root `CLAUDE.md`
+### Step A4 — Create or Update `.claude/CLAUDE.md`
 
-Use Glob to check whether `CLAUDE.md` exists at the repo root.
+Use Glob to check whether `.claude/CLAUDE.md` exists at the repo root.
 
-- If it **does not exist**: use the Write tool to create it with the content in [references/claude-md-content.md](references/claude-md-content.md).
-- If it **already exists**: read it first, then use the Edit tool to append the agent-memory-v2 section if it is not already present. Never remove existing content.
+- If `.claude/` does not exist, create it first with `mkdir -p .claude`.
+- If `.claude/CLAUDE.md` **does not exist**: use the Write tool to create it with the content in [references/claude-md-content.md](references/claude-md-content.md).
+- If `.claude/CLAUDE.md` **already exists**: read it first, then use the Edit tool to append the agent-memory-v2 section if it is not already present. Never remove existing content.
 
 ---
 
@@ -80,7 +81,7 @@ Use Glob to check whether `CLAUDE.md` exists at the repo root.
 Print a summary:
 - Directories created or already existed
 - Each memory file: created or skipped
-- `CLAUDE.md`: created, updated, or skipped
+- `.claude/CLAUDE.md`: created, updated, or skipped
 
 ---
 
