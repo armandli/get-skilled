@@ -436,6 +436,57 @@ private:
 
 `distance_to` has exactly 3 statements, so it qualifies. Methods with 4+ statements stay out-of-line.
 
+### E6 — Enum underlying type
+
+```cpp
+// BEFORE — no underlying type specified
+enum class Color {
+  Red,
+  Green,
+  Blue,
+};
+
+enum class Direction {
+  North,
+  South,
+  East,
+  West,
+};
+
+// AFTER — `: int` added as default underlying type
+enum class Color : int {
+  Red,
+  Green,
+  Blue,
+};
+
+enum class Direction : int {
+  North,
+  South,
+  East,
+  West,
+};
+```
+
+**Exception — already has a type (leave as-is):**
+```cpp
+// Keep as-is: type is already explicit
+enum class Status : uint8_t {
+  Ok,
+  Error,
+  Pending,
+};
+```
+
+**Plain enum (also converted):**
+```cpp
+// BEFORE
+enum OldStyle { A, B, C };
+
+// AFTER
+enum OldStyle : int { A, B, C };
+```
+
 ---
 
 ## Group F: Formatting

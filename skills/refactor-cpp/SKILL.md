@@ -64,7 +64,11 @@ For each finding, assign:
   declaration and a `.cpp` definition
 - **Proposed function signature:** include `const`, `noexcept`, `&`, and `&&`
   qualifiers as appropriate; use `std::string_view` for read-only string
-  parameters; prefer `const T&` for read-only input, `T&&` for sinks
+  parameters; prefer `const T&` for read-only input, `T&&` for sinks;
+  prefer return type over output parameters — only use a non-`const` reference
+  parameter when the caller must supply an existing object to be filled or
+  when returning multiple values with no natural primary result; if output
+  parameters are unavoidable, list them **before** all input parameters
 - **Target utility file path:** `utils/<type>_utils.h` (and `.cpp` if
   non-template)
 
@@ -158,6 +162,11 @@ showing the recommended extracted form when it aids clarity.
 - **Prefer `const T&` / `std::string_view`** — use `const T&` for read-only
   inputs, `T&&` for sinks, and `std::string_view` for read-only string
   parameters (C++17 or later)
+- **Prefer return value over output parameters** — return the result directly
+  whenever possible; only introduce a non-`const` reference output parameter
+  when the caller must supply an existing object to fill or when returning
+  multiple values with no natural primary result; if output parameters are
+  required, place them **before** all input parameters in the signature
 - **No `using namespace` at file scope in headers** — headers must not pollute
   the global namespace
 - **Semantic equivalence required for Auto** — only extract into Auto when all

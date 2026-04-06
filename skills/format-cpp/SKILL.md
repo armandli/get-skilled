@@ -1,6 +1,6 @@
 ---
 name: format-cpp
-description: Formats C++ code according to 20 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Use when user asks to "format my C++ code", "apply C++ style rules", "clean up this C++ file", or "run format-cpp on X". Run refactor-cpp before this skill. Do NOT use for explaining C++ code, debugging, or writing new C++ code from scratch.
+description: Formats C++ code according to 21 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Use when user asks to "format my C++ code", "apply C++ style rules", "clean up this C++ file", or "run format-cpp on X". Run refactor-cpp before this skill. Do NOT use for explaining C++ code, debugging, or writing new C++ code from scratch.
 argument-hint: "[file or directory path]"
 ---
 
@@ -117,6 +117,8 @@ template<class T>      // no
 ```
 
 **E5 — Inline small methods.** Methods with 3 or fewer statements should be defined inline in the struct/class body. Move longer methods out-of-line.
+
+**E6 — Enum underlying type.** Every `enum class`, `enum struct`, and plain `enum` declaration must include an explicit underlying fundamental type. If none is specified, add `: int` as the default. Only use a type other than `int` when the enum values demonstrably require it (e.g., a flags enum needing more than 32 bits uses `: uint64_t`, an enum that must fit in a byte uses `: uint8_t`). If the declaration already has an explicit underlying type, leave it unchanged.
 
 ### Group F: Formatting
 
