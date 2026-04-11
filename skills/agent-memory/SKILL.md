@@ -2,13 +2,13 @@
 name: agent-memory
 description: Sets up agent memory project structure and manages the four agent memory
   files (adr.md, config.md, bug.md, issue.md). Handles scaffolding (creating docs/memory,
-  docs/plan directories, memory files, and .claude/CLAUDE.md) and memory operations
+  docs/plans directories, memory files, and .claude/CLAUDE.md) and memory operations
   (adding ADRs, logging bug fixes, tracking issues, updating config, resolving issues).
   Use when the user asks to "set up agent memory", "scaffold agent project structure",
   "initialize agent cookiecutter", "run agent-cookiecutter", "set up agent project",
   "add an ADR", "record an architectural decision", "log a bug fix", "add a bug",
   "add an issue", "update config memory", "resolve an issue", "move issue to bug",
-  or "update memory files". Do NOT use for committing or pushing changes.
+  or "update memory files", "plant the plan", "save plan to repo". Depends on plant-plan for copying plan files into docs/plans/. Do NOT use for committing or pushing changes.
 ---
 
 # agent-memory Skill
@@ -36,10 +36,13 @@ Run `pwd` and `git rev-parse --show-toplevel 2>/dev/null`.
 
 Run:
 ```
-mkdir -p docs/memory docs/plan
+mkdir -p docs/memory docs/plans
 ```
 
 Both are created with `-p` (no error if already present).
+
+After creating directories, note to the user:
+> `docs/plans/` is ready. Use `/plant-plan` after planning sessions to copy plan files here from `~/.claude/plans/`.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: agent-memory-v2
-description: Sets up and manages diagram-driven project memory in docs/memory/. Scaffolds directories (docs/memory, docs/plans), creates memory files (kanban.md, architecture.md, adr.md, config.md, bug.md), and writes CLAUDE.md to guide future sessions. Diagrams in docs/memory drive source code changes. Use when the user asks to "set up agent memory v2", "scaffold project structure", "initialize memory", "add an ADR", "log a bug fix", "update config memory", "update kanban", "create kanban item", "move item to in progress", "complete a kanban item", "sync code from diagram", "update source from architecture", "reflect diagram changes in code", or "update memory files". Also triggered by command-style invocations: "agent-memory-v2 create-item", "agent-memory-v2 progress", "agent-memory-v2 complete". Depends on mermaid-diagram-guide for diagram syntax. Do NOT use for committing or pushing changes, and do NOT use the old agent-memory skill for v2 projects.
+description: Sets up and manages diagram-driven project memory in docs/memory/. Scaffolds directories (docs/memory, docs/plans), creates memory files (kanban.md, architecture.md, adr.md, config.md, bug.md), and writes CLAUDE.md to guide future sessions. Diagrams in docs/memory drive source code changes. Use when the user asks to "set up agent memory v2", "scaffold project structure", "initialize memory", "add an ADR", "log a bug fix", "update config memory", "update kanban", "create kanban item", "move item to in progress", "complete a kanban item", "sync code from diagram", "update source from architecture", "reflect diagram changes in code", or "update memory files". Also triggered by command-style invocations: "agent-memory-v2 create-item", "agent-memory-v2 progress", "agent-memory-v2 complete". Depends on mermaid-diagram-guide for diagram syntax. Depends on plant-plan for copying plan files into docs/plans/. Do NOT use for committing or pushing changes, and do NOT use the old agent-memory skill for v2 projects.
 argument-hint: "[create-item <name> \"details\" | progress <name> | complete <name>]"
 ---
 
@@ -47,6 +47,9 @@ mkdir -p docs/memory docs/plans
 ```
 
 Both created with `-p` (no error if already present).
+
+After creating directories, note to the user:
+> `docs/plans/` is ready. Use `/plant-plan` after planning sessions to copy plan files here from `~/.claude/plans/`.
 
 ---
 
