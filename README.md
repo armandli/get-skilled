@@ -35,9 +35,9 @@ Sets up a standard Python package development repo structure with `bin/`, `etc/`
 
 Formats C++ code according to 20 specific style rules covering whitespace, braces, preprocessor directives, namespaces, types, formatting, and semantic transformations. Includes a namespace aliases reference and formatting examples.
 
-#### `get-planted`
+#### `plant-plan`
 
-Creates structured development plans as markdown files with step blocks, dependencies, and concurrent execution support. Plans use YAML frontmatter and step blocks that declare dependencies, expected inputs, and defined outcomes — enabling parallel execution by multiple agents.
+Copies a plan file from `~/.claude/plans/` into the local repo's `docs/plans/` directory. Accepts optional arguments to select a specific plan by name pattern or rename the output file.
 
 #### `marimo-notebook`
 
@@ -117,10 +117,6 @@ Records skill usage statistics and issue reports into `.claude/skill-stats.md`. 
 
 ### Subagents
 
-#### `plan-planter`
-
-Validates and optimizes development plans created by `get-planted`. Checks DAG integrity, minimizes redundant dependencies for maximum concurrency, verifies step detail sufficiency, and interactively resolves gaps with the user.
-
 #### `advent-hacker`
 
 Solves open-ended coding problems (e.g. Advent of Code) in Python. Reads problem descriptions, writes Python solutions, and runs them against input files.
@@ -177,11 +173,8 @@ skills/
 │   └── references/
 │       ├── examples.md
 │       └── namespace-aliases.md
-├── get-planted/
-│   ├── SKILL.md
-│   └── references/
-│       ├── plan-format.md
-│       └── scrutiny-checklist.md
+├── plant-plan/
+│   └── SKILL.md
 ├── jupyter-to-marimo/
 │   ├── SKILL.md
 │   └── references/
@@ -245,8 +238,7 @@ skills/
 └── update-readme/
     └── SKILL.md
 agents/
-├── advent-hacker.md
-└── plan-planter.md
+└── advent-hacker.md
 ```
 
 ## Usage
@@ -273,7 +265,7 @@ Example commands:
 - `/cpp-cookiecutter myproject` — scaffold a C++ project with CMake and GTest
 - `/current-time` — get current date/time; `/current-time America/New_York` to set timezone
 - `/format-cpp src/main.cpp` — format C++ files
-- `/get-planted plan.md` — create a structured development plan
+- `/plant-plan` — copy the most recent plan from `~/.claude/plans/` into `docs/plans/`
 - `/jupyter-to-marimo notebook.ipynb` — convert a Jupyter notebook to marimo
 - `/marimo-anywidget slider "a range slider synced to Python"` — create a custom marimo widget
 - `/marimo-notebook analysis.py` — create or edit a marimo notebook
