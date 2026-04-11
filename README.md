@@ -59,6 +59,10 @@ Scans a C++ codebase for duplicate or near-duplicate logic across `.cpp` and `.h
 
 Converts a Jupyter notebook (`.ipynb`) to a marimo notebook (`.py`) by running `marimo convert`, then auditing and fixing the output for magic commands, IPython display calls, anti-patterns, import consolidation into the setup cell, and missing PEP 723 metadata. Validates the result with `marimo check` and leaves `# REVIEW:` comments for patterns that cannot be automatically resolved.
 
+#### `mermaid-diagram-guide`
+
+Reference guide for Mermaid diagram syntax covering all major diagram types used in software engineering: flowchart, sequence, class, ER, state, Gantt, requirement, C4, ZenUML, mindmap, architecture, kanban, block, packet, treemap, and treeview. Auto-validates diagrams via a `PostToolUse` hook (`mmdc`) when `@mermaid-js/mermaid-cli` is installed.
+
 #### `marimo-anywidget`
 
 Creates custom interactive widgets in marimo notebooks using `anywidget`, combining Python `traitlets` state with vanilla JavaScript ESM front-ends. Covers the full widget lifecycle: Python `AnyWidget` subclass, JS `render`/`initialize` functions, CSS scoping, `mo.ui.anywidget()` integration, and reactive downstream cells.
@@ -70,6 +74,18 @@ Converts one or more named Python functions from synchronous to asynchronous usi
 #### `agent-memory`
 
 Sets up an agent memory project structure and manages the four agent memory files (`adr.md`, `config.md`, `bug.md`, `issue.md`). Handles both scaffolding (creating `docs/memory/`, `docs/plan/`, memory files, and `.claude/CLAUDE.md`) and memory operations (adding ADRs, logging bug fixes, tracking open issues, updating config). Enforces table schemas, blocks recording secrets or credentials, and handles the full issue-to-bug promotion lifecycle.
+
+#### `agent-memory-v2`
+
+Sets up and manages diagram-driven project memory in `docs/memory/`. Scaffolds directories (`docs/memory/`, `docs/plans/`) and five memory files (`kanban.md`, `architecture.md`, `adr.md`, `config.md`, `bug.md`), and writes `.claude/CLAUDE.md` to guide future sessions. Supports three paths: scaffold setup, memory operations (kanban CRUD, ADR/config/bug writes), and diagram-driven development (syncing source code from edited Mermaid diagrams). Accepts command-style invocations (`create-item`, `progress`, `complete`) for quick kanban management. Depends on `mermaid-diagram-guide` for diagram syntax.
+
+#### `create-hook`
+
+Interactive wizard that creates and installs Claude Code hooks in `settings.json`. Guides the user through lifecycle event selection (`PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`, etc.), hook type (`command`, `prompt`, `agent`, or `http`), optional matcher regex, and installation target (global, project, or project-local). Generates or writes helper scripts for complex commands and verifies the written configuration.
+
+#### `curate`
+
+Acquires a skill from a local directory or GitHub URL into this repo's `skills/`, or merges features from an external skill version into an existing local skill. Analyzes the source for security concerns, preferential bias, and destructive operations before writing anything. Resolves flagged issues interactively. Optimizes acquired skills to meet `create-skill` quality standards and creates the `.claude/skills/` symlink.
 
 #### `commit-push`
 
@@ -120,6 +136,13 @@ skills/
 │       └── struct-templates.md
 ├── agent-memory/
 │   └── SKILL.md
+├── agent-memory-v2/
+│   ├── SKILL.md
+│   └── references/
+│       ├── claude-md-content.md
+│       ├── diagram-driven-dev.md
+│       ├── initial-content.md
+│       └── memory-schemas.md
 ├── async-python/
 │   ├── SKILL.md
 │   └── references/
@@ -130,6 +153,15 @@ skills/
 │   └── SKILL.md
 ├── commit-push-pr/
 │   └── SKILL.md
+├── create-hook/
+│   ├── SKILL.md
+│   └── references/
+│       └── events-reference.md
+├── curate/
+│   ├── SKILL.md
+│   └── references/
+│       ├── github-url-formats.md
+│       └── security-flags.md
 ├── cpp-cookiecutter/
 │   └── SKILL.md
 ├── create-skill/
@@ -171,6 +203,25 @@ skills/
 │       ├── TOP-LEVEL-IMPORTS.md
 │       ├── TYPER.md
 │       └── UI.md
+├── mermaid-diagram-guide/
+│   ├── SKILL.md
+│   └── references/
+│       ├── architecture.md
+│       ├── block-diagram.md
+│       ├── c4-diagram.md
+│       ├── class-diagram.md
+│       ├── er-diagram.md
+│       ├── flowchart.md
+│       ├── gantt.md
+│       ├── kanban.md
+│       ├── mindmap.md
+│       ├── packet.md
+│       ├── requirement-diagram.md
+│       ├── sequence-diagram.md
+│       ├── state-diagram.md
+│       ├── treemap.md
+│       ├── treeview.md
+│       └── zenuml.md
 ├── optimize-python/
 │   ├── SKILL.md
 │   └── references/
@@ -212,6 +263,10 @@ Example commands:
 - `/create-skill` — scaffold a new skill
 - `/advent-cookiecutter day01.cpp input.txt pd2` — generate a C++ AoC starter
 - `/agent-memory` — set up agent memory structure, or add an ADR, log a bug fix, or resolve an open issue
+- `/agent-memory-v2` — set up diagram-driven project memory; `/agent-memory-v2 create-item "fix login bug" "details"`, `progress`, or `complete` for kanban ops
+- `/create-hook` — interactive wizard to create and install a Claude Code hook
+- `/curate https://github.com/user/repo/tree/main/skills/my-skill` — acquire a skill from GitHub; `/curate my-skill <source>` to merge features
+- `/mermaid-diagram-guide` — look up Mermaid syntax; `/mermaid-diagram-guide sequence` for a specific diagram type
 - `/async-python fetch_data process_results` — convert named functions to async
 - `/commit-push` — stage, commit, and push current changes
 - `/commit-push-pr` — create a branch, commit, and push to upstream
