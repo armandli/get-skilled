@@ -199,7 +199,7 @@ If a skill exceeds these limits, split into references or consider breaking into
 - `$1`, `$2` — shorthand for positional args
 - `${CLAUDE_SESSION_ID}` — current session ID
 
-**Dynamic context injection**: Use `` !`command` `` syntax to run shell commands. Output replaces the placeholder before content is sent to Claude.
+**Dynamic context injection**: Write an exclamation mark immediately followed by a backtick-quoted shell command. The harness executes the command at skill-load time and substitutes its output before the content reaches Claude.
 
 **Extended thinking**: Include the word "ultrathink" anywhere in skill content to enable extended thinking mode.
 
