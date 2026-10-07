@@ -1,0 +1,6 @@
+{
+  "name": "read-tracker",
+  "version": "0.1.0",
+  "description": "Shows all files read and URLs fetched this session (deduplicated, sorted), plus uncommitted git changes. /read-tracker to open.",
+  "author": { "name": "Armand Li" }
+}

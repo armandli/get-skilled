@@ -1,0 +1,4 @@
+{
+  "description": "Read-tracker mod hooks module",
+  "modules": ["./register.js"]
+}
