@@ -305,13 +305,3 @@ See [references/examples.md](references/examples.md) for:
 3. **Prompt context injector** — auto-add git branch when PR mentioned
 4. **PR checks status bar** — background timer with `$.ui.status`
 5. **Notes pane** — pane with `Input` field and list with delete buttons
-
----
-
-### Final Step — Record Usage
-
-Run after the skill's primary task completes:
-
-```bash
-python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "create-mod"
-```

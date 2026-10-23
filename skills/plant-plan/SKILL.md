@@ -83,11 +83,3 @@ Print a concise summary:
 ```
 Planted: ~/.claude/plans/<SOURCE_FILE> → docs/plans/<DEST_FILE>
 ```
-
----
-
-## Final Step — Record Usage
-
-```bash
-python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "plant-plan"
-```

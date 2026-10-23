@@ -175,7 +175,6 @@ Before writing to disk, apply `create-skill` quality guidelines (see `skills/cre
 **Body:**
 - Top-level sections use `## ` headers
 - Critical instructions appear near the top
-- Includes a `### Final Step — Record Usage` block calling `skill-stat` (add if missing)
 - Under 500 lines / 5,000 words
 
 **In merge mode**: apply these checks only to the sections being added, not the entire existing local skill.
@@ -223,7 +222,7 @@ If exists, warn: `"A skill named '${SKILL_NAME}' already exists. Overwriting."` 
 ### Merge mode
 
 1. Apply skill-form optimizations from Step 6 to the sections being added.
-2. Append each chosen section to the local SKILL.md. Insert before the `### Final Step` / `### Step N — Record Usage` block if present, so that block stays last.
+2. Append each chosen section to the local SKILL.md.
 3. For "Both (differs)" sections where the user chose [2] (use source), replace the local section body with the source version.
 4. Rewrite `${PWD}/skills/${LOCAL_SKILL_NAME}/SKILL.md`.
 
@@ -255,12 +254,4 @@ Invoke with: /<SKILL_NAME>
 - Sections kept as-is:   <list>
 - Sections skipped:      <list>
 - Skill-form fixes:      <list or "none">
-```
-
----
-
-## Final Step — Record Usage
-
-```bash
-python3 ${PWD}/.claude/skills/skill-stat/scripts/record-stat.py "curate"
 ```

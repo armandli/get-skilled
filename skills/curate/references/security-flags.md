@@ -71,7 +71,6 @@ Examples to flag:
 
 **NOT a flag**:
 - Calling `mcp__*` tools — these are legitimate MCP server calls; availability depends on the user's setup, but the pattern is valid
-- Referencing `skill-stat` as an optional dependency with a `test -f` check before use
 
 ---
 

@@ -111,10 +111,6 @@ Retrieves the current date and time in a configured timezone. Can be invoked dir
 
 Reverts all git changes in the working directory: staged changes, unstaged modifications, and new untracked files. Shows a summary of what will be lost and asks for confirmation before running `git reset --hard HEAD` and `git clean -fd`. Does not touch ignored files.
 
-#### `skill-stat`
-
-Records skill usage statistics and issue reports into `.claude/skill-stats.md`. Increments the Uses count for a skill name and optionally logs an issue report that increments the Issues count and appends a row to the Issue Reports table.
-
 ### Subagents
 
 #### `advent-hacker`
@@ -233,8 +229,6 @@ skills/
 │       └── refactor-patterns.md
 ├── revert/
 │   └── SKILL.md
-├── skill-stat/
-│   └── SKILL.md
 └── update-readme/
     └── SKILL.md
 agents/
@@ -275,7 +269,6 @@ Example commands:
 - `/python-cookiecutter mypackage` — scaffold a Python package with pybind11 support
 - `/refactor-cpp src/` — extract duplicate C++ logic into shared utilities
 - `/refactor-python src/` — extract duplicate Python logic into utilities
-- `/skill-stat agent-memory` — record a skill usage stat
 - `/update-readme` — generate or refresh the project README
 
 ## Adding New Skills
