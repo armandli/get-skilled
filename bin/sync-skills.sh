@@ -7,11 +7,20 @@
 
 set -euo pipefail
 
-SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve symlinks (e.g. ~/bin/sync-skills.sh -> <repo>/bin/sync-skills.sh) so the
+# repo is found no matter where the script is invoked from.
+script="${BASH_SOURCE[0]}"
+while [[ -L "$script" ]]; do
+  link="$(readlink "$script")"
+  [[ "$link" == /* ]] || link="$(dirname "$script")/$link"
+  script="$link"
+done
+# This script lives in <repo>/bin/, so the repo root is one level up.
+SRC_ROOT="$(cd "$(dirname "$script")/.." && pwd -P)"
 SRC_SKILLS="$SRC_ROOT/skills"
 
 SCAN_ROOT="$HOME"
-MAX_DEPTH=4
+MAX_DEPTH=2
 APPLY=0
 DELETE=0
 FORCE=0
@@ -28,7 +37,8 @@ found under the scan root, but only where that skill already exists.
 Options:
   -a, --apply        Actually copy files (default is a dry run)
   -r, --root DIR     Directory to scan for repos (default: \$HOME)
-  -d, --depth N      Max find depth for locating .claude/skills (default: $MAX_DEPTH)
+  -d, --depth N      How many levels below the root repos can be (default: $MAX_DEPTH;
+                     1 means <root>/<repo>/.claude/skills)
   -D, --delete       Also delete files in the target that no longer exist here
   -f, --force        Overwrite targets even when they look locally edited (drift)
   -v, --verbose      Show unified diffs for changed files
@@ -75,13 +85,14 @@ list_files() {
   (cd "$1" && find . -type f ! -name .DS_Store | sed 's|^\./||' | sort)
 }
 
-n_synced=0; n_updated=0; n_drift=0; n_pending=0
+n_synced=0; n_updated=0; n_drift=0; n_pending=0; n_dirs=0
 
 # Locate every .claude/skills dir under the scan root, skipping heavy/irrelevant trees.
 while IFS= read -r target_skills; do
   target_skills="$(cd "$target_skills" && pwd -P)"
   # Never sync into ourselves.
   [[ "$target_skills" == "$SRC_ROOT/.claude/skills" ]] && continue
+  n_dirs=$((n_dirs + 1))
   repo="${target_skills%/.claude/skills}"
 
   for target in "$target_skills"/*/; do
@@ -160,11 +171,15 @@ while IFS= read -r target_skills; do
     echo "  ${C_GRN}synced${C_OFF}"
   done
 done < <(
-  find "$SCAN_ROOT" -maxdepth "$MAX_DEPTH" \
+  # Repo depth N puts .claude/skills at find depth N+2.
+  find "$SCAN_ROOT" -maxdepth "$((MAX_DEPTH + 2))" \
     \( -name node_modules -o -name Library -o -name .Trash -o -name .git -o -name .venv \) -prune \
     -o -type d -path '*/.claude/skills' -print 2>/dev/null
 )
 
+if [[ $n_dirs -eq 0 ]]; then
+  echo "${C_YEL}No .claude/skills dirs found under $SCAN_ROOT within depth $MAX_DEPTH.${C_OFF}" >&2
+fi
 echo
 echo "${C_BLD}Summary${C_OFF}: $n_synced in sync, $n_updated updated, $n_pending pending, $n_drift drifted"
 if [[ $APPLY -eq 0 && $n_pending -gt 0 ]]; then
