@@ -108,8 +108,13 @@ On-Demand API is not a prerequisite for good performance.
 
 ## 3. No JSON5 / JSONC
 
-simdjson is strictly RFC 8259. **Comments, trailing commas, unquoted keys, single-quoted strings,
-hex literals, and leading `+` or `.` in numbers are all rejected.** There is no lenient mode.
+simdjson is strictly RFC 8259. **Comments, unquoted keys, single-quoted strings, hex literals, and
+leading `+` or `.` in numbers are all rejected.**
+
+The one opt-in leniency is **trailing commas** (5.x): `#define SIMDJSON_ALLOW_TRAILING_COMMAS 1` before
+including `simdjson.h`, or `cmake -D SIMDJSON_ALLOW_TRAILING_COMMAS=ON`. It applies to On-Demand
+`iterate()`/`iterate_many()` only — the DOM stays strict — and only a comma after a value is accepted
+(`[,]` and `[1,,]` still fail). Verified on 5.3.0: `{"v":[1,2,3,],}` iterates to 1, 2, 3.
 
 Config files with comments must be preprocessed. A correct stripper must respect string literals and
 escapes — a naive `//` search corrupts URLs:
@@ -166,8 +171,9 @@ Rejected by default — they are not valid JSON. Opt in at build time *and* befo
 plus `cmake -D SIMDJSON_ENABLE_NAN_INF=ON`. Then `Infinity`, `-Infinity`, `Inf`, `-Inf`, `NaN` parse
 case-insensitively as `double`.
 
-The builder never *emits* these — a non-finite `double` has no JSON representation. Decide on a
-convention and enforce it yourself:
+A non-finite `double` has no JSON representation. Since 5.3.0 the builder writes NaN/Infinity as
+`null` (verified: `sb.append(0.0/0.0)` emits `null`); earlier releases did not guard this. If `null`
+is not the convention you want, enforce your own:
 
 ```cpp
 void append_double(simdjson::builder::string_builder& sb, double v) {
@@ -271,15 +277,28 @@ signatures.
 
 ## 9. Pretty-Printing a Parsed Document
 
-Three distinct facilities, often confused:
+Several distinct facilities, often confused. All rows except the last work **without** reflection
+(verified on 5.3.0):
 
 | Need | Tool |
 |------|------|
 | Minify a JSON string, no parsing | `simdjson::minify(in, len, out, out_len)` — very fast, does not validate |
-| Re-emit a parsed value as compact JSON | `simdjson::to_json_string(value)` — returns a raw `string_view` slice, no allocation; **consumes** the value |
-| Pretty-print your own C++ structs | `simdjson::to_fractured_json_string(obj, opts)` — C++26 reflection, operates on *your types* |
+| Re-emit a parsed On-Demand value as compact JSON | `simdjson::to_json_string(value)` — returns a raw `string_view` slice, no allocation; **consumes** the value |
+| Pretty-print any JSON *text* | `simdjson::fractured_json_string(std::string_view json, opts)` → `std::string` |
+| Pretty-print a parsed **DOM** element | `simdjson::fractured_json(element, opts)`, or `simdjson::prettify(element)` for plain indentation |
+| Pretty-print an On-Demand value | `fractured_json_string(to_json_string(v).value(), opts)` |
+| Pretty-print your own C++ structs directly | `simdjson::to_fractured_json_string(obj, opts)` — **C++26 reflection only**; otherwise `fractured_json_string(to_json(obj).value(), opts)` |
 
-There is **no** pretty-printer for an arbitrary parsed document. Write a recursive walk:
+```cpp
+simdjson::dom::parser dp;
+simdjson::dom::element el = dp.parse(json);
+simdjson::fractured_json_options opts;
+opts.indent_spaces = 2;
+std::string pretty = simdjson::fractured_json(el, opts);
+```
+
+If you need a layout neither formatter produces (custom key order, comments, colouring), write a
+recursive walk:
 
 ```cpp
 void pretty(simdjson::ondemand::value v, std::string& out, int indent = 0) {
@@ -450,7 +469,15 @@ into the document but returns the key still escaped.
 
 ## 15. No `has_key()` / `contains()`
 
-Deliberate: a check followed by a read would scan twice. Probe and use the result:
+Deliberate: a check followed by a read would scan twice. For a scalar with a fallback, 5.3.0 added
+`default_if_missing`, which replaces only `NO_SUCH_FIELD`:
+
+```cpp
+double z = obj["z"].get_double().default_if_missing(0.0);          // exceptions
+auto err = obj["z"].get_double().default_if_missing(0.0).get(z);  // error codes
+```
+
+Otherwise probe and use the result:
 
 ```cpp
 simdjson::ondemand::value v;

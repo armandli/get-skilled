@@ -46,7 +46,9 @@ If the name is omitted the usage line reads `Usage: [OPTIONS]` with no program n
 | `add_option(name, callback_t cb, desc, defaulted, str_fn)` | Raw form; `cb` is `bool(const std::vector<std::string>&)`. |
 | `add_option_no_stream(name, var, desc)` | Same as `add_option` but never calls `operator<<` on `var`. Use for types with no stream output. |
 
-Names are comma-separated: `"-n,--num"`. Any number of short and long forms. Order does not matter;
+Names are comma-separated: `"-n,--num"`. Any number of short and long forms. One name without a
+dash may be mixed in: `"file,-f,--file"` is a single option that can be given positionally *or* by
+flag (verified: `prog foo` and `prog -f foo` both set it; help lists it under POSITIONALS). Order does not matter;
 the *longest* name is used in help.
 
 ```cpp
@@ -74,7 +76,9 @@ app.add_flag_callback("--now", []{ /* void() */ });
 The `!` prefix marks a negating alias. `add_flag_function`'s callback signature is
 `void(std::int64_t)` — the count, verified as `1` for a single `--loud`.
 
-Flags can accept an explicit value with `=`: `--verbose=3`. Binding a flag to a `std::string` or
+Flags can accept an explicit value with `=`: `--verbose=3`. A default value for the bare flag goes in
+braces: `add_flag("--fast{3}", level)` sets `3` for `--fast` and `7` for `--fast=7` (verified). Integer
+flags are forced to `0` when absent — see [pitfalls.md](pitfalls.md#integer-flags-are-reset-to-0-when-absent). Binding a flag to a `std::string` or
 non-counting type and passing `-vv` is an error.
 
 ## Positionals
@@ -416,7 +420,8 @@ string, it fails to compile. Use `as<std::string>()` or `results()`.
 | Method | Effect |
 |--------|--------|
 | `allow_extras(bool = true)` | Don't throw on unknown args; retrieve via `remaining()`. Verified: `[leftover,--unknown,5]`. |
-| `prefix_command()` | Stop parsing at the first unrecognized token; the rest goes to `remaining()`. |
+| `prefix_command()` | Stop parsing at the first unrecognized token; the rest goes to `remaining()`. 2.7.0 added `CLI::PrefixCommandMode` (`Off`, `SeparatorOnly`, `On`, `PositionalOnly`) to choose where it stops. |
+| `failure_message(CLI::FailureMessage::help)` | Print the full help on any parse error instead of the one-line message. |
 | `ignore_case()` / `ignore_underscore()` | Lenient name matching for this App and its options. |
 | `allow_windows_style_options(bool)` | Accept `/opt` style. |
 | `allow_non_standard_option_names()` | Accept `-option` (single dash, long name). |

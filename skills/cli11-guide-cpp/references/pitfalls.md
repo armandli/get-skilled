@@ -10,6 +10,7 @@ measurement.
 - [parse(vector) wants the vector reversed](#parsevector-wants-the-vector-reversed)
 - [fallthrough is inherited at creation time](#fallthrough-is-inherited-at-creation-time)
 - [capture_default_str snapshots immediately](#capture_default_str-snapshots-immediately)
+- [Integer flags are reset to 0 when absent](#integer-flags-are-reset-to-0-when-absent)
 - [operator\[\] cannot configure an option](#operator-cannot-configure-an-option)
 - [Unbound options have different arity than bound ones](#unbound-options-have-different-arity-than-bound-ones)
 - [expected_max_vector_size is 1<<29, not 1<<30](#expected_max_vector_size-is-129-not-130)
@@ -117,6 +118,25 @@ app.add_option("-m", m)->capture_default_str();   // help shows [77]
 
 Both measured. Set your defaults first, register options second. If you want CLI11 to actually
 *assign* a default, use `->default_val(x)` — verified to leave `n == 55` when the option is absent.
+
+## Integer flags are reset to 0 when absent
+
+`add_flag` bound to an integral type wider than one byte installs
+`multi_option_policy(Sum)->default_str("0")->force_callback()` (`detail::default_flag_modifiers` in
+`App.hpp`). `force_callback` runs the callback even when the flag never appeared, with the default
+`"0"`, so the variable's initial value is lost:
+
+```cpp
+int verbosity = 5;  bool color = true;  int n = 42;
+app.add_flag("-v", verbosity);
+app.add_flag("--color", color);
+app.add_option("-n", n);
+app.parse(std::string(""));
+// verbosity == 0, color == true, n == 42   (measured, 2.6.2 and 2.7.2)
+```
+
+This also applies to `--flag{3}` default-value flags bound to an `int`. Only `bool`, vector, and
+1-byte integral flags are left alone. Keep a non-zero baseline in a separate variable.
 
 ## operator[] cannot configure an option
 

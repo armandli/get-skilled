@@ -9,7 +9,8 @@ simdjson is a SIMD-accelerated JSON library (C++11 minimum; best features need C
 at gigabytes per second by **not** building a tree: the default On-Demand front-end is a *forward
 iterator over the raw JSON text*.
 
-Current release: **5.0.2**. Always pin a release tag, never `main`.
+Current release: **5.3.0** (2026-11-22). The references were written against 5.0.2 and spot-checked
+on 5.3.0. Always pin a release tag, never `main`.
 
 ## Three Components
 
@@ -40,16 +41,17 @@ simdjson is a **parsing** library first. Check the task against this:
 include(FetchContent)
 FetchContent_Declare(simdjson
   GIT_REPOSITORY https://github.com/simdjson/simdjson.git
-  GIT_TAG tags/v5.0.2
+  GIT_TAG v5.3.0
   GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(simdjson)
 
 add_executable(my_app main.cpp)
-target_link_libraries(my_app PRIVATE simdjson)
+target_link_libraries(my_app PRIVATE simdjson::simdjson)
 ```
 
-Requires CMake 3.15+. Alternative: `find_package(simdjson CONFIG REQUIRED)` for vcpkg/Conan/system
+simdjson is **not** header-only: link the target (or compile `simdjson.cpp`), otherwise you get
+`undefined reference to simdjson::...`. Requires CMake 3.14+. Alternative: `find_package(simdjson CONFIG REQUIRED)` for vcpkg/Conan/system
 installs, or copy `singleheader/simdjson.h` + `simdjson.cpp` into the project.
 
 Do **not** pass `-march=native` or `/arch:AVX2` unless the binary targets one known machine — simdjson
@@ -62,7 +64,11 @@ dispatches on CPU features at runtime.
 | Debug | `SIMDJSON_DEVELOPMENT_CHECKS=1` (automatic in debug) | Catches `OUT_OF_ORDER_ITERATION` and lifetime misuse. **Always run new simdjson code in debug first.** |
 | Release | `NDEBUG` defined | Without it, expensive internal checks stay on. CMake Release sets this. |
 
-Never link debug-built simdjson against release code or vice versa.
+Never link debug-built simdjson against release code or vice versa. More generally, every
+translation unit that includes `simdjson.h` must use the same flags (`-O`, `-std`, `NDEBUG`):
+the On-Demand types are inlined into each TU, and mismatched copies are an ODR violation that shows
+up as wrong field values rather than a crash. Full option table and troubleshooting:
+[references/cmake.md](references/cmake.md).
 
 ## The Five Cardinal Rules
 
@@ -158,6 +164,10 @@ ondemand::value v;
 if (!obj["optional"].get(v)) { /* present, and v holds it */ }
 ```
 
+For an optional scalar with a fallback (5.3.0+):
+`double z = obj["z"].get_double().default_if_missing(0.0);` — only `NO_SUCH_FIELD` is replaced;
+other errors still propagate.
+
 ## Encoding: Canonical Pattern
 
 Serialization is a separate, lower-level facility — you own the document structure.
@@ -207,26 +217,24 @@ simdjson will not do these. Each needs your own code — recipes are in
 |-----|-------------------|
 | **Edit a parsed document in place** | No mutation API exists. Parse into your own structs, then re-serialize with the builder. |
 | **Re-read or random-access values** | On-Demand is forward-only and single-consumption. Store what you need, or use the DOM front-end, or `doc.rewind()` (re-parses). |
-| **JSON5 / JSONC**: comments, trailing commas, unquoted keys, single quotes | Strict RFC 8259 only. Strip/convert before parsing. |
+| **JSON5 / JSONC**: comments, unquoted keys, single quotes | Strict RFC 8259. Strip/convert before parsing. Trailing commas only: `SIMDJSON_ALLOW_TRAILING_COMMAS=1` (On-Demand, 5.x; DOM stays strict). |
 | **`NaN` / `Infinity` literals** | Rejected by default; opt in with `SIMDJSON_ENABLE_NAN_INF=1` (non-standard JSON). |
 | **Integers beyond 64-bit, exact decimals** | `BIGINT_ERROR` / precision loss. Read the raw token via `raw_json_token()` and parse it yourself. |
 | **Reject duplicate keys** | simdjson reports all duplicates without complaint. Dedupe while iterating. |
 | **JSON Schema validation, JSON Patch/Merge Patch** | Not provided at all. Use another library or hand-roll. |
 | **Canonical / sorted-key output (JCS)** | Builder emits in call order. Sort keys yourself before appending. |
-| **Pretty-print a *parsed* document** | `to_json_string` yields raw minified slices. Fractured JSON works on your C++ types, not a parsed doc. Walk the tree yourself. |
+| **Pretty-print a *parsed* document** | DOM: `simdjson::prettify(element)` or `simdjson::fractured_json(element, opts)`. On-Demand: `fractured_json_string(to_json_string(value).value(), opts)`. No reflection needed (verified 5.3.0). |
 | **Incremental parsing from a socket** | Needs the whole document in one padded buffer. Buffer it fully, or use `iterate_many` for streams of *complete* documents. |
 | **Documents over 4 GiB** | Hard single-document limit. Split, or stream with `iterate_many`. |
 | **UTF-16 / UTF-32** | UTF-8 only. Transcode with [simdutf](https://github.com/simdutf/simdutf). |
 | **Match escaped keys** | `obj["date"]` will not match `"date"`. Iterate and compare `field.unescaped_key()`. |
 
 Also mind the depth limit: parsing is iterative and costs no stack, but **your** recursive traversal
-does. A few KB of `[[[[[` can blow the stack. Cap it:
-
-```cpp
-parser.allocate(0, 30);   // reject documents deeper than 30 (default 1024)
-```
-
-...and/or check `element.current_depth()` inside recursive walkers.
+does. A few KB of `[[[[[` can blow the stack. Cap it yourself:
+count depth in your own walker, or check `value.current_depth()`. `parser.allocate(cap, max_depth)`
+does **not** bound depth for On-Demand in release builds — only `dom::parser` (and On-Demand under
+`SIMDJSON_DEVELOPMENT_CHECKS`) returns `DEPTH_ERROR`. See
+[references/limitations.md](references/limitations.md#12-depth-your-recursion-not-simdjsons).
 
 ## Thread Safety
 
@@ -257,6 +265,8 @@ and often produce plausible-looking wrong output.
 
 Load on demand:
 
+- **Build integration** — FetchContent/find_package/amalgamation, every CMake option, kernel
+  selection, link and ODR troubleshooting: [references/cmake.md](references/cmake.md)
 - **Full parsing API** — accessors, iteration, field lookup, number types, JSON Pointer, JSONPath, key
   selectors, NDJSON via `iterate_many`, rewinding, raw JSON access, DOM front-end, custom type
   deserialization: [references/parsing-api.md](references/parsing-api.md)

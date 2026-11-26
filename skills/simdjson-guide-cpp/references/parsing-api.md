@@ -58,7 +58,7 @@ macro `SIMDJSON_DEVELOPMENT_CHECKS` is set to true", and measurement confirms a 
 parses fine under `allocate(4096, 5)` in both release and development-checks builds. Only
 `dom::parser` actually returns `DEPTH_ERROR`. To bound depth with On-Demand, count it yourself in
 your traversal — see
-[limitations.md](limitations.md#12-depth-is-your-recursion-not-simdjsons).
+[limitations.md](limitations.md#12-depth-your-recursion-not-simdjsons).
 
 `set_max_capacity()` makes oversized inputs fail with `CAPACITY` instead of allocating. Use it when
 the input size is attacker-controlled.
@@ -70,7 +70,15 @@ bool is_alive() noexcept;        // false after a fatal error; the doc cannot be
 bool at_end() const noexcept;    // true when the cursor consumed the whole document
 simdjson_result<const char*> current_location() const noexcept;  // byte pointer, for error messages
 int32_t current_depth() const noexcept;
+error_code validate() noexcept;  // 5.3.0+: walk and fully validate the whole document
 ```
+
+`doc.validate()` is the opt-in for eager validation — On-Demand normally only validates what you
+read. Call it right after `iterate()` when you must reject malformed input before acting on any of
+it, then `rewind()` to read. Verified on 5.3.0 (returns `SUCCESS` on valid input).
+
+`ondemand::parser::get_parser()` returns a thread-local parser — convenient for helpers that do not
+want to thread a parser through every call, with the usual one-document-at-a-time rule per thread.
 
 ## 2. Input types
 
@@ -452,6 +460,7 @@ auto v = doc.at_pointer("/results/0/user/screen_name");
 
 // JSONPath: dotted and bracketed
 auto w = doc.at_path(".results[0].user.screen_name");
+auto w2 = doc.at_path("$.results[0].user.screen_name");   // 5.2.0+: leading `$` root accepted
 ```
 
 On a `document`, `at_pointer()` **calls `rewind()` first**, so repeated lookups from the document

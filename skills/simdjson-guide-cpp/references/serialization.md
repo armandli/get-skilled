@@ -468,9 +468,20 @@ if (auto e = simdjson::to_fractured_json_string(config, opts).get(pretty); e) { 
 columns ordered by first occurrence and blanks for missing keys. Excellent for diffable fixtures and
 CLI output.
 
-These functions need **reflection or a `tag_invoke`** for the type — they take a C++ object, not
-parsed JSON. To pretty-print JSON you just *parsed*, you must write the walker yourself; see
-[limitations.md](limitations.md#9-pretty-printing-a-parsed-document).
+These two are compiled only under `SIMDJSON_STATIC_REFLECTION`. Two entry points are **always**
+available (verified on 5.3.0, reflection off) and cover the common cases:
+
+```cpp
+// Any JSON text — pair with to_json for tag_invoke types
+std::string pretty = simdjson::fractured_json_string(simdjson::to_json(config).value(), opts);
+
+// A parsed DOM element
+simdjson::dom::element el = dom_parser.parse(json);
+std::string pretty2 = simdjson::fractured_json(el, opts);
+```
+
+Both return a plain `std::string`. For an On-Demand value, feed `to_json_string(value)` into
+`fractured_json_string`. See [limitations.md](limitations.md#9-pretty-printing-a-parsed-document).
 
 ## 9. Re-emitting parsed JSON
 
@@ -499,15 +510,16 @@ without a round-trip through your structs. See
 [limitations.md](limitations.md#1-no-document-mutation) for the full unknown-field passthrough
 pattern.
 
-For DOM, `simdjson::minify(element)` streams minified JSON to an `ostream`.
+For DOM, `simdjson::minify(element)` gives minified JSON, `simdjson::prettify(element)` indented
+JSON, and `std::cout << element` streams it.
 
 ## 10. Correctness traps
 
 1. **Check `view()`/`c_str()`.** Appends silently swallow allocation failure. The returned
    `simdjson_result` is the only error channel.
 2. **`append_raw` does not escape.** Never hand it user-controlled text; that is a JSON injection.
-3. **`append(char)` is not a string.** Use `escape_and_append_with_quotes(char)` for a one-character
-   JSON string.
+3. **`append(char)` is not a string.** It writes the raw byte (verified on 5.3.0: `append('x')` →
+   `x`). Use `escape_and_append_with_quotes(char)` for a one-character JSON string.
 4. **`escape_and_append` omits the quotes.** The `_with_quotes` variant is the one you almost always
    want.
 5. **The builder does not validate UTF-8.** Call `validate_unicode()` if inputs are untrusted.

@@ -32,13 +32,13 @@ include(FetchContent)
 FetchContent_Declare(
   simdjson
   GIT_REPOSITORY https://github.com/simdjson/simdjson.git
-  GIT_TAG        tags/v5.0.2
+  GIT_TAG        v5.3.0
   GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(simdjson)
 
 add_executable(myapp main.cpp)
-target_link_libraries(myapp PRIVATE simdjson)
+target_link_libraries(myapp PRIVATE simdjson::simdjson)
 ```
 
 Pin a tag. `GIT_TAG main` will silently change the API under you.

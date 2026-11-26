@@ -117,8 +117,14 @@ Make the config struct a member or a `main`-scope local. Never a function-local 
 
 ### 2. Absent options leave the variable untouched
 
-CLI11 does not zero or reset anything. "Default value" means "the value you initialized the variable
-with". Verified: an unparsed `int n = 42` reads `42` after `parse()`.
+For `add_option`, CLI11 does not zero or reset anything. "Default value" means "the value you
+initialized the variable with". Verified: an unparsed `int n = 42` reads `42` after `parse()`.
+
+**Exception — integer flags.** `add_flag` bound to an integer (any integral type wider than one byte)
+is a *counting* flag: CLI11 gives it `default_str("0")->force_callback()`, so when the flag is absent
+the variable is **overwritten with `0`**. Verified on 2.6.2 and 2.7.2: `int fi = 5; add_flag("--fi", fi)`
+reads `0` after parsing an empty command line. `bool` flags and vector flags keep their initial value.
+If an integer flag needs a non-zero baseline, keep the baseline in a separate variable and add the count.
 
 Corollary: `capture_default_str()` **snapshots the variable at the moment you call it**, purely for
 help text. Set the default first, register second:
@@ -180,6 +186,9 @@ to `stderr` (or help to `stdout`) and returns the process exit code.
 `OptionAlreadyAdded`) is **not** a `ParseError`, so `CLI11_PARSE` will not catch it — that is
 intentional, since it signals a bug in your own setup code.
 
+`app.failure_message(CLI::FailureMessage::help)` prints the full help on any parse failure instead
+of the one-line error.
+
 To inspect without exiting, catch explicitly:
 
 ```cpp
@@ -200,8 +209,10 @@ Measured: parse `-n 1` then `-n 2` without `clear()` succeeds and `n == 2`; `cle
 ```cpp
 app.add_option("-n,--num", var, "desc");       // one value, any convertible type
 app.add_option("pos", var, "desc");            // no dash => positional
+app.add_option("file,-f,--file", var, "desc"); // positional OR -f/--file, one option
 app.add_flag("-v,--verbose", count_or_bool);   // -vvv yields 3 on an int
 app.add_flag("--tri,!--no-tri", flag);         // `!` prefix sets false
+app.add_flag("--fast{3}", level);              // --fast => 3, --fast=7 => 7
 app.add_option_function<int>("-c", callback);  // callback(const int&)
 app.add_flag_function("--loud", callback);     // callback(std::int64_t)
 auto *sub = app.add_subcommand("add", "desc");
@@ -239,6 +250,8 @@ g++ -std=c++17 -Wall -Wextra -I<cli11>/include main.cpp -o app
 ./app <bad input>     # confirm the error message and exit code
 echo $?
 ```
+
+Also run each subcommand at least once, plus the no-subcommand case, if the CLI has subcommands.
 
 Check the generated help text specifically — it prints each option's real expected arity
 (`INT`, `INT ...`, `INT x 2`), which is the fastest way to catch an `expected()`/`type_size()` mistake.
