@@ -206,7 +206,7 @@ export function register(on) {
         if (result.exitCode === 0) {
           $.ui.status('PR checks: ' + summarize(result.stdout))
         } else {
-          $.ui.status('')    // clear if no PR
+          $.ui.status(undefined)    // undefined clears the line
         }
       } catch {
         $.ui.status('PR checks: gh not found')

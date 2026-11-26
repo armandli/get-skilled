@@ -34,11 +34,14 @@ await $.ui.open({
 
 await $.ui.close({ id: 'my-pane' })
 
-const panes = await $.ui.panes()    // list of open pane ids
+const panes = await $.ui.panes()    // [{ id, isShown, isPlaced, ... }]: handy for a toggle command
 
-await $.ui.focus({ id: 'my-pane' }) // give keyboard focus to pane
+await $.ui.focus({ requestId: 'my-pane', key: 'search' })  // focus a pane, or one keyed control in it
 
-await $.ui.scroll({ id: 'my-pane', to: 'bottom' })  // scroll pane
+await $.ui.scroll({ in: 'my-pane', to: 'end' })             // to: 'start' | 'end' | { key } | { requestId }
+await $.ui.scroll({ to: { key: 'row-42' }, block: 'nearest' })  // block: start | center | end | nearest
+
+await $.ui.open({ id: 'my-pane', title: 'New title' })      // re-open with the same id = retitle, no second pane
 
 await $.ui.blit({                   // repaint one Raster element without re-running ui.render
   requestId: 'my-pane',

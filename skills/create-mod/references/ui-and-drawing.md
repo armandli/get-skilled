@@ -16,7 +16,9 @@ A mod's interface lives in **render sites** — named extension points Claude Co
 | `TurnDuration` | The line that closes a turn | Terminal only |
 | `Spinner`, `ToolProgress` | Status lines during a turn | Terminal, Desktop |
 | `PromptHint` | Hint line under the prompt | Terminal, Desktop |
-| `InfoNotice`, `SessionMode` | Status lines under the logo | Terminal, Desktop |
+| `InfoNotice` | Status lines under the logo | Terminal only |
+| `SessionMode` | Dim mode labels at the right of the prompt footer (`e.props.modes`); add or filter modes | Terminal, Desktop |
+| `CommandOutput` | Output of a slash command | Terminal, Desktop |
 
 The **permission prompt** is not a render site — a mod cannot change it.
 
@@ -74,7 +76,7 @@ await $.ui.close({ id: 'my-pane' })
 
 ## Drawing in the Band (AbovePrompt)
 
-The band is always present. Every mod shares it. Return a tree to draw there, or `next(e)` for nothing. A returned tree replaces what later mods draw.
+The band is always present. Every mod shares it. Return a tree to draw there, or `next(e)` for nothing. A returned tree replaces what later mods draw, so **share it**: when you have nothing to show, `return next(e)`; when you do, `const below = await next(e)` and return `Box({ flexDirection: 'column', children: [mine, below] })`. Yield (`return next(e)`) while `e.props.hasSurvey` is true. Fit your rows inside `e.props.maxRows` so the band never scrolls. See [ui-recipes.md](ui-recipes.md) §1.
 
 ```javascript
 on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
@@ -140,6 +142,20 @@ const { Box, Text, Button, Input, Select, Markdown, Link, Code, Raster } = $.ui.
 
 If your file is `.tsx` or `.jsx`, you can write JSX after destructuring.
 
+**Which surface has which element:**
+
+| Element | terminal | desktop / vscode | mobile |
+|---|---|---|---|
+| `Box`, `Text`, `Button`, `Link`, `Code`, `Markdown` | ✓ | ✓ | ✓ |
+| `Input`, `Select` | ✓ | ✓ | ✗ |
+| `Client` | ✓ | desktop ✓, vscode ✗ | ✗ |
+| `Raster`, `Image` | ✓ | ✗ | ✗ |
+| `Svg` | ✗ | ✓ | ✓ |
+
+Feature-detect optional elements: `const el = $.ui.resolve(e); const Svg = 'Svg' in el ? el.Svg : undefined`. On an unknown surface, an element it doesn't know renders as a fragment.
+
+**Tree limits:** 20,000 nodes, 32 levels deep, 100,000 serialized characters. Over that, the tree is refused and Claude Code draws its own.
+
 ### `Box` — Flex container
 ```javascript
 Box({
@@ -168,10 +184,34 @@ Text({
   underline: true,
   dimColor: true,
   inverse: true,
+  strikethrough: true,
   wrap: 'wrap',               // 'wrap', 'truncate', 'truncate-start', 'truncate-middle', 'truncate-end'
+  // Desktop/VS Code typography (the terminal ignores these, so they are safe everywhere):
+  size: 'footnote',           // 'caption' | 'footnote' | 'body' | 'heading' | 'title'
+  weight: 'semibold',         // 'regular' | 'medium' | 'semibold' | 'bold' (bold: true = semibold)
+  mono: true,                 // monospace face, for glyph art and code columns
+  tabular: true,              // fixed-width digits, for counters and number columns
+  hover: { color: 'suggestion' },   // needs an enclosing keyed Box, or hover.scope
   children: ['Hello, world!'],  // max 10,000 chars per string
 })
 ```
+
+Colors can be a **theme key** that follows the user's Claude theme: `'text'`, `'subtle'`, `'inactive'`, `'suggestion'`, `'success'`, `'error'`, `'warning'`, `'claude'`, `'permission'`, `'diffAdded'`, `'diffRemoved'` and others. They can also be raw: `'#rrggbb'`, `'#rrggbbaa'`, `'ansi256(n)'` or a named color.
+
+### `Box` hover and overlays
+```javascript
+Box({
+  key: 'row-1',                               // a keyed Box is a hover scope
+  hover: { backgroundColor: 'gray' },         // applied by the surface; no hook runs
+  position: 'relative',
+  children: [
+    Text({ children: ['ⓘ'] }),
+    Box({ position: 'absolute', top: -2, left: 2, display: 'none',
+          hover: { display: 'flex' }, borderStyle: 'round', children: [Text({ children: ['tooltip'] })] }),
+  ],
+})
+```
+`hover.scope: 'name'` links elements across sites so they light together. Space props also accept `'xs' | 'sm' | 'md' | 'lg' | 'xl'`. See [building-great-ui.md](building-great-ui.md) §6.
 
 ### `Button` — Pressable control
 ```javascript
@@ -242,20 +282,30 @@ Markdown({
   key: 'content',
   text: '# Hello\n\nThis is **markdown** content.',  // max 10,000 chars
   dimColor: true,
-  onLinkPress: (href) => { /* handle link click */ },
-  pressableLinks: true,
+  pressableLinks: ['https://x.invalid/open/1'],      // string[] of hrefs this element answers
+  onLinkPress: (link, e) => { open(link.href) },     // link is a PressedLink; key is required with it
 })
 ```
+A trick for progressive disclosure: make each closed section a link to a made-up href (`https://x.invalid/open/N`) and expand it in `onLinkPress`.
 
 ### `Link`
 ```javascript
 Link({ href: 'https://example.com', label: 'Open Docs' })
 ```
 
-### `Code` — Code block
+### `Code` — Code block (engine highlighter)
 ```javascript
-Code({ children: 'const x = 42' })  // max 10,000 chars
+Code({ source: 'const x = 42', language: 'ts' })             // or path: 'a.ts' to infer language
+Code({ source: text, path: file, startLine: 40, wrap: 'truncate-end' })  // dim line-number gutter
+Code({ source: unifiedDiffHunks, format: 'diff' })           // +/- coloring and gutters
 ```
+`source` is the prop, not children; the limit is 100,000 characters per drawing. Colors are the engine's own.
+
+### `Svg` — Vector graphics (Desktop, VS Code, mobile; not terminal)
+```javascript
+Svg({ key: 'icon', source: '<svg xmlns="http://www.w3.org/2000/svg" ...>...</svg>', alt: 'folder', width: 16, height: 16 })
+```
+`source` is at most 131,072 chars; `width`/`height` are CSS pixels; `alt` is required. Without `isInteractive` it is drawn as a static image. `isInteractive: true` draws it in a script-less sandbox where SMIL animation, CSS `:hover` and `<title>` tooltips work. Svg is isolated from the app's fonts: embed a base64 `@font-face` in `<style>` if text matters. It has no `onPress`: put a `Client` hit layer over it. See [building-great-ui.md](building-great-ui.md) §3.
 
 ### `Raster` — Grid of colored cells (terminal only)
 ```javascript
@@ -287,20 +337,33 @@ await $.ui.blit({ requestId: 'my-pane', key: 'heat-grid', columns: 10, rows: 5, 
 
 Check `e.surface !== 'terminal'` and show a fallback for Desktop.
 
-### `Image` (terminal only)
+### `Image` (terminal only: kitty, Ghostty; iTerm2 3.5+ in fullscreen for `png`/`rgba` only)
 ```javascript
-Image({ src: '/path/to/image.png' })         // file path
-Image({ src: pngBytes })                      // PNG bytes as Uint8Array, max 2 MiB
-Image({ src: rgbaBytes, width: 100, height: 100, channels: 4 })  // raw RGBA
+Image({ key: 'chart', source: { png: base64Png }, columns: 40, rows: 10, alt: 'chart of X' })
+Image({ source: { rgba: base64Rgba, width: 64, height: 64 }, columns: 16, rows: 8, alt: 'pie chart' })
+Image({ source: { file: '/abs/frame.png', format: 'png', generation: 3 }, columns: 80, rows: 25, alt: 'preview' })
+// swap the picture without re-rendering:
+await $.ui.blit({ requestId: 'my-pane', key: 'chart', source: { png: nextPng } })
 ```
+`columns`/`rows` must be 1–255. `alt` is required and is what other terminals show. Decoded bytes are at most 2 MiB, and `rgba` is at most 2048 px per side. `file` and `shm` sources are read by the terminal directly. You can compute RGBA pixels yourself, with no library needed; see [building-great-ui.md](building-great-ui.md) §4.
 
-### `Client` — Custom component
-A second file drawn in its own context (no mods API). Communicates via `ui.message`.
+### `Client` — Interactive component on the drawing thread
+A second module (a `ClientModule`) with local state, a mouse and key listener, and a timer, and no `$`. Use it for instant hover, clicks on arbitrary cells, drag, animation and keyboard navigation.
 ```javascript
-Client({ module: './my-widget.js', key: 'widget' })
-// The widget file has no $ access; posts to hooks with postMessage({ type: 'data', value })
-// Your hooks receive ui.message events
+Client({ key: 'rows', module: './rows.tsx', props: { rows, active }, width: '100%', height: 20 })
+// module must be a string literal; props must be plain JSON (≤100,000 chars)
+
+// rows.tsx
+const Rows = (props, surface) => {
+  // surface.elements, surface.state / setState, surface.columns / rows,
+  // surface.every(ms, fn), surface.onPointer(fn), surface.onKey(fn), surface.post(data)
+  return surface.elements.Text({ children: [String(props.rows.length)] })
+}
+export default Rows
+
+// hooks: on('ui.message', ...) with e.requestId, e.element (the Client key) and e.data
 ```
+There's no `Client`, `Raster` or `Image` inside a Client. Start timers and listeners once (while `state` is undefined). Three `setState` calls in a row with no input between them unmount it. Full pattern: [building-great-ui.md](building-great-ui.md) §5.
 
 ---
 
@@ -435,7 +498,9 @@ ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew 
 Debug log path: `~/.claude/logs/` — check for `ui.render (Pane): a hook returned a tree that does not validate`.
 
 Common causes:
-- Using an element the surface doesn't support (e.g., `Raster` on Desktop)
+- Using an element the surface doesn't support (e.g., `Raster` on Desktop, `Svg` in the terminal)
+- `Code` given `children` instead of `source`; `Image`/`Svg` missing the required `alt`
+- A `Text` with `hover` that is neither inside a keyed `Box` nor given a `hover.scope`
 - A prop set to `false` when it only accepts `true` (e.g., `autoFocus: false`)
 - Typo in an element name or prop name
 - Child string exceeding 10,000 characters
@@ -452,7 +517,7 @@ e.props: {
   isFocused: boolean,
   bodyColumns: number,      // usable width
   placement: 'dock'|'inline',
-  scroll: { bodyRows: number, offsetRow: number },
+  scroll: { bodyRows: number, offset: number },
   view: object,
 }
 e.requestId: string         // the id you opened with

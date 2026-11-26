@@ -220,6 +220,32 @@ Load `$.store` values in `session.start`. After `/clear`, `/resume`, or `/branch
 
 Open a pane from a command or `session.start`, then draw in `ui.render`. For complete UI coverage (bands, elements, state, keyboard, raster grids), see [references/ui-and-drawing.md](references/ui-and-drawing.md).
 
+**For anything visual beyond simple text, read [references/building-great-ui.md](references/building-great-ui.md).** It covers glyph canvases (box-drawing, quadrant, braille and eighth-block glyphs), `Svg` vector graphics on Desktop, `Image` pixels in the terminal, interactive `Client` components (mouse, hover, drag, keys, animation), hover without hooks (`hover`, `scope`, reveal tooltips), cell-width measurement, terminal vs Desktop typography, theme keys and contrast gates, `userConfig` options, tree limits, caching, and the visual test kit. Key rules:
+- No npm packages. Terminal shapes come from glyphs in colored `Text` runs, `Box`, `Raster` or self-computed `Image` pixels. Desktop shapes come from `Svg` strings you write. Vendor a library as one ESM file only if you must.
+- Feature-detect elements (`'Svg' in el`). `Raster` and `Image` are terminal-only, and `Svg` is Desktop/VS Code/mobile-only.
+- Use a `Client` module for instant hover, clicks, drag and animation, posting to hooks via `ui.message`. Lay a transparent `Client` over an `Svg` or `Image` to make it clickable.
+- Merge same-color runs into one `Text`. Trees over 20,000 nodes, 32 levels or 100,000 characters are silently refused.
+- Render hooks must not write `$.state`. Load with `$.clock.after(0, …)`, then `read($, atom)`.
+- Default colors to theme keys (`'suggestion'`, `'error'`, `'success'`) and `ansi256(n)` so the user's theme owns them. Gate any hex you pick on contrast.
+- Test on both `terminal` and `desktop` with `claude plugin test`, then look at a real render.
+
+**Building a specific kind of UI? See [references/ui-recipes.md](references/ui-recipes.md).** It collects proven patterns from the most popular mods, including the official Anthropic examples:
+- bands that share space and fit `maxRows`
+- push-based meters (`session.measure`)
+- folding and rewriting replies (`memberOf` per-message state, `classic.MessageDisplay`, fullscreen-only toggles)
+- agent dashboards (which events feed them)
+- streamed pixels and animation (frame scheduling, bandwidth caps, shm frames, probing picture support)
+- Desktop font quirks
+- error cards and `ui.fault`
+- cross-mod renderers
+- stubbing `$` ops in tests
+
+Top rules:
+- **Never erase other mods' bands.** `const below = await next(e)` and draw yours above it. Return `next(e)` when idle or when `e.props.hasSurvey` is true.
+- Render-site sizes live on **`e.props`** (`bodyColumns`, `maxRows`, `hasSurvey`), not on `e`. Even the official examples get this wrong.
+- Toggles inside transcript rows only work in fullscreen (`e.viewport.isFullscreen`). Off fullscreen, draw everything expanded.
+- Add a `.catch` on `ui.render` that draws an error card. Skip all UI work when `$.session.surfaces()` is empty.
+
 ```javascript
 // Open pane
 on('command.run', { command: 'show' }, async ($) => {
